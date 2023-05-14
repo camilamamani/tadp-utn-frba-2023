@@ -57,9 +57,19 @@ module Persistence
         instance.instance_variable_set("@id", nil)
       end
       def all_instances
-        #obtener entries de las tablas
-        self.
-        self.new()
+        class_name = self.name.downcase
+        table = TADB::DB.table(class_name)
+        entries_as_objects = []
+        table.entries.each do |entry|
+          new_obj = self.new()
+          attrs_to_persist.each do |attr|
+            var_name = "@"+attr[0].to_s
+            value = entry[attr[0]]
+            new_obj.instance_variable_set(var_name, value)
+          end
+          entries_as_objects << new_obj
+        end
+        entries_as_objects
       end
 
 
