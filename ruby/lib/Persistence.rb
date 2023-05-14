@@ -1,7 +1,8 @@
 require "tadb"
 require_relative 'PersistentAttribute'
 module Persistence
-    module ClassMethods
+  MissingIdError = Class.new(StandardError)
+  module ClassMethods
       def has_one(type, named:)
         #Guardamos en attrs_to_persist los atributos con su tipo y nombre
         persistent_attribute = PersistentAttribute.new(type, named);
@@ -32,9 +33,41 @@ module Persistence
         row_id = table.insert(hash)
         row_id
       end
+
+      def refresh!(one_instance)
+        class_name = one_instance.class.name.downcase
+        table = TADB::DB.table(class_name)
+        row = table.entries.select do |entry|
+          entry[:id] == one_instance.id
+        end
+        # instance_variable_set de todos los campos
+        row = row.first
+        attrs_to_persist.each do |attr|
+          var_name = "@"+attr[0].to_s
+          value = row[attr[0]]
+          one_instance.instance_variable_set(var_name, value)
+        end
+
+      end
+
+      def all_instances
+        #obtener entries de las tablas
+        self.
+        self.new()
+      end
+
+
     end
     def save!
       @id = self.class.save!(self)
+    end
+
+    def refresh!
+      if @id.nil?
+        raise MissingIdError
+      end
+      self.class.refresh!(self)
+
     end
     def self.included(base)
       base.extend(ClassMethods)
