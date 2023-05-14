@@ -50,6 +50,12 @@ module Persistence
 
       end
 
+      def forget!(instance)
+        class_name = instance.class.name.downcase
+        table = TADB::DB.table(class_name)
+        table.delete(instance.id)
+        instance.instance_variable_set("@id", nil)
+      end
       def all_instances
         #obtener entries de las tablas
         self.
@@ -69,6 +75,14 @@ module Persistence
       self.class.refresh!(self)
 
     end
+
+  def forget!
+    if @id.nil?
+      raise MissingIdError
+    end
+
+    self.class.forget!(self)
+  end
     def self.included(base)
       base.extend(ClassMethods)
       base.send(:attr_accessor, :id)
