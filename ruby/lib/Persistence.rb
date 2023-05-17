@@ -4,18 +4,13 @@ module Persistence
   MissingIdError = Class.new(StandardError)
   module ClassMethods
       def has_one(type, named:)
-        #Guardamos en attrs_to_persist los atributos con su tipo y nombre
         persistent_attribute = PersistentAttribute.new(type, named);
         self.attrs_to_persist[named] = persistent_attribute
 
-        #Creamos el atributo en la clase
         attr_accessor named
       end
       def attrs_to_persist
-        unless @attrs_to_persist #Inicializamos si es nil
-          @attrs_to_persist = {}
-        end
-        @attrs_to_persist #Devuelve el valor de attrs_to_persist
+        @attrs_to_persist ||= {}
       end
 
       def save!(one_instance)
@@ -40,7 +35,7 @@ module Persistence
         row = table.entries.select do |entry|
           entry[:id] == one_instance.id
         end
-        # instance_variable_set de todos los campos
+
         row = row.first
         attrs_to_persist.each do |attr|
           var_name = "@"+attr[0].to_s
