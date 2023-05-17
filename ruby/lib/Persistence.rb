@@ -19,18 +19,18 @@ module Persistence
       end
 
       def save!(one_instance)
-        #Obtenemos el nombre de la clase
         class_name = one_instance.class.name.downcase
 
-        #Obtenemos el hash atributo valor, a partir de los attrs_to_persist
         hash = {}
         @attrs_to_persist.each_value do |attr|
           hash = hash.merge(attr.get_hash_attr_value(one_instance))
         end
 
-        # Creamos tabla con nombre de la clase + insertamos hash con atributos y valores
-        table = TADB::DB.table(class_name)
-        row_id = table.insert(hash)
+        if one_instance.id != nil
+          TADB::DB.table(class_name).delete(one_instance.id)
+        end
+
+        row_id = TADB::DB.table(class_name).insert(hash)
         row_id
       end
 
@@ -95,6 +95,7 @@ module Persistence
   end
     def self.included(base)
       base.extend(ClassMethods)
+      base.attrs_to_persist[:id] = PersistentAttribute.new(String, :id)
       base.send(:attr_accessor, :id)
     end
 end

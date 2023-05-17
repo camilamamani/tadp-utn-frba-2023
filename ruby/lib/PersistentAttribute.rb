@@ -8,7 +8,7 @@ class PersistentAttribute
   def get_hash_attr_value(one_instance)
     hash = {}
     value = one_instance.send(attr_name)
-    value = (value.nil?) ? "..." : value
+    value = (value.nil? && attr_name.to_s != "id") ? "..." : value
     hash[attr_name] = value
     hash
   end
