@@ -104,19 +104,17 @@ module Persistence
         raise MissingIdError
       end
       self.class.refresh!(self)
-
     end
 
   def forget!
     if @id.nil?
       raise MissingIdError
     end
-
     self.class.forget!(self)
   end
-    def self.included(base)
-      base.extend(ClassMethods)
-      base.attrs_to_persist[:id] = PersistentAttribute.new(String, :id)
-      base.send(:attr_accessor, :id)
-    end
+  def self.included(base)
+    base.extend(ClassMethods)
+    base.attrs_to_persist[:id] = PersistentAttribute.new(String, :id)
+    base.send(:attr_accessor, :id)
+  end
 end
