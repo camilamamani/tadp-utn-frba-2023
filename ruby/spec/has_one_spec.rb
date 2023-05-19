@@ -42,16 +42,37 @@ describe 'Persistence Tests' do
         has_one String, named: :name
         has_one Grade, named: :grade
       end
-    end
-    it 'Se guarda estudiante y su nota' do
       felipe.name = 'Felipe'
       felipe.grade = Grade.new
       felipe.grade.value = 8
       felipe.save!
+    end
+    after do
+      TADB::DB.clear_all
+    end
+    it 'Se guarda estudiante y su nota' do
+      grade = felipe.grade
+      grade.value = 5
+      grade.save!
       expect(felipe).to respond_to(:id)
+      expect(grade).to respond_to(:id)
     end
 
-    #TODO:Update all instances to return grade as object
-    #expect(Student.all_instances.first.grade.value).to eq(8)
+    it 'Luego de un refresh! se actualiza el estudiante y su nota' do
+      grade = felipe.grade
+      grade.value = 5
+      felipe.refresh!
+      expect(felipe.grade.value).to eq(8)
+    end
+
+    it 'Luego de un guardar la nota y un refresh en estudiante, estudiante tiene su nota actualizada' do
+      grade = felipe.grade
+      grade.value = 5
+      grade.save!
+
+      returned_grade = felipe.refresh!.grade
+      expect(returned_grade.value).to eq(5)
+    end
+
   end
 end

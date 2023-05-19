@@ -31,18 +31,19 @@ module Persistence
 
       def refresh!(one_instance)
         class_name = one_instance.class.name.downcase
-        table = TADB::DB.table(class_name)
-        row = table.entries.select do |entry|
-          entry[:id] == one_instance.id
-        end
+        row = find_by_table_name_and_id(class_name, one_instance.id)
 
-        row = row.first
-        attrs_to_persist.each do |name, _ |
+        attrs_to_persist.each do |name, attr |
           var_name = "@"+name.to_s
           value = row[name]
+          if attr.value_is_persistent
+            id = value
+            object_entry = find_by_table_name_and_id(attr.class_type.to_s.downcase, id)
+            value = attr.class_type.get_object_from_entry(object_entry)
+          end
           one_instance.instance_variable_set(var_name, value)
         end
-
+        one_instance
       end
 
       def forget!(instance)
@@ -51,18 +52,28 @@ module Persistence
         table.delete(instance.id)
         instance.instance_variable_set("@id", nil)
       end
+
+      def find_by_table_name_and_id(class_name, id)
+        table = TADB::DB.table(class_name)
+        entry = table.entries.find { |entry| entry[:id] == id }
+        entry
+      end
+      def get_object_from_entry(entry)
+        new_obj = self.new()
+        attrs_to_persist.each do |name,_|
+          var_name = "@"+name.to_s
+          value = entry[name]
+          new_obj.instance_variable_set(var_name, value)
+        end
+        new_obj
+      end
+
       def all_instances
         class_name = self.name.downcase
         table = TADB::DB.table(class_name)
         entries_as_objects = []
         table.entries.each do |entry|
-          new_obj = self.new()
-          attrs_to_persist.each do |name,_|
-            var_name = "@"+name.to_s
-            value = entry[name]
-            new_obj.instance_variable_set(var_name, value)
-          end
-          entries_as_objects << new_obj
+          entries_as_objects << get_object_from_table_entry(entry)
         end
         entries_as_objects
       end
