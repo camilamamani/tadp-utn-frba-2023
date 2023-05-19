@@ -11,5 +11,6 @@ class PersistentAttribute
     value = (value.nil? && attr_name.to_s != "id") ? "..." : value
     hash[attr_name] = value
     hash
+    #TODO: raise error if value nil
   end
 end

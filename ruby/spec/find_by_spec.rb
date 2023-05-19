@@ -1,7 +1,3 @@
-require "rspec"
-require_relative '../lib/Persistence'
-require_relative '../lib/Boolean'
-
 describe 'Persistence Tests' do
   context 'forget' do
     let(:sabrina){ Student.new }
