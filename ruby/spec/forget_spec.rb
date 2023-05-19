@@ -1,6 +1,6 @@
 describe 'Persistence Tests' do
   context 'forget' do
-    let(:one_student){ Student.new }
+    let(:alejandro){ Student.new }
 
     before do
       class Student
@@ -20,12 +20,12 @@ describe 'Persistence Tests' do
     end
 
     it 'deletes entry' do
-      one_student.full_name = "Alejandro"
-      one_student.age  = 25
-      one_student.save!
+      alejandro.full_name = "Alejandro"
+      alejandro.age  = 25
+      alejandro.save!
 
-      one_student.forget!
-      expect(one_student.id).to be(nil)
+      alejandro.forget!
+      expect(alejandro.id).to be(nil)
     end
 
   end

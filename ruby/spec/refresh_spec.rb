@@ -1,7 +1,7 @@
 describe 'Persistence Tests' do
   context '3. refresh' do
-    let(:one_student){ Student.new }
-    let(:pablo){ Student.new }
+    let(:diana){ Student.new }
+
     before do
       class Student
         include Persistence
@@ -19,16 +19,16 @@ describe 'Persistence Tests' do
     end
 
     it 'refresh' do
-      one_student.full_name = "Alejandro"
-      one_student.age  = 25
-      one_student.save!
+      diana.full_name = "Diana"
+      diana.age  = 25
+      diana.save!
 
-      one_student.full_name = "Tobias"
-      one_student.age = 29
-      one_student.refresh!
+      diana.full_name = "Diana Lopez"
+      diana.age = 29
+      diana.refresh!
 
-      expect(one_student.full_name).to eq("Alejandro")
-      expect(one_student.age).to eq(25)
+      expect(diana.full_name).to eq("Diana")
+      expect(diana.age).to eq(25)
     end
 
   end

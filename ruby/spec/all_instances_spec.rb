@@ -1,7 +1,7 @@
 describe 'AllInstances' do
 
   context 'all_instances' do
-    let(:one_student){ Student.new }
+    let(:alejandro){ Student.new }
     let(:other_student){ Student.new }
 
     before do
@@ -15,9 +15,9 @@ describe 'AllInstances' do
         end
       end
 
-      one_student.name = "Alejandro"
-      one_student.age  = 25
-      one_student.save!
+      alejandro.name = "Alejandro"
+      alejandro.age  = 25
+      alejandro.save!
 
       other_student.name = "Fernando"
       other_student.age  = 30

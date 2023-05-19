@@ -73,7 +73,7 @@ module Persistence
         table = TADB::DB.table(class_name)
         entries_as_objects = []
         table.entries.each do |entry|
-          entries_as_objects << get_object_from_table_entry(entry)
+          entries_as_objects << get_object_from_entry(entry)
         end
         entries_as_objects
       end
