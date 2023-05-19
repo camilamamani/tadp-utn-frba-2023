@@ -37,9 +37,9 @@ module Persistence
         end
 
         row = row.first
-        attrs_to_persist.each do |attr|
-          var_name = "@"+attr[0].to_s
-          value = row[attr[0]]
+        attrs_to_persist.each do |name, _ |
+          var_name = "@"+name.to_s
+          value = row[name]
           one_instance.instance_variable_set(var_name, value)
         end
 
@@ -57,17 +57,43 @@ module Persistence
         entries_as_objects = []
         table.entries.each do |entry|
           new_obj = self.new()
-          attrs_to_persist.each do |attr|
-            var_name = "@"+attr[0].to_s
-            value = entry[attr[0]]
+          attrs_to_persist.each do |name,_|
+            var_name = "@"+name.to_s
+            value = entry[name]
             new_obj.instance_variable_set(var_name, value)
           end
           entries_as_objects << new_obj
         end
         entries_as_objects
       end
+      def method_missing(symbol, *args, &block)
+        if symbol.to_s.start_with?('find_by_') && args.length == 1
+          message = symbol.to_s.gsub('find_by_', '').to_sym
+          searched_value  = args[0]
 
+          class_name = self.name.downcase
+          table = TADB::DB.table(class_name)
 
+          entries_as_objects = []
+          table.entries.each do |entry|
+            if entry[message] == searched_value
+              new_obj = self.new()
+              attrs_to_persist.each do |name,_|
+                var_name = "@"+name.to_s
+                value = entry[name]
+                new_obj.instance_variable_set(var_name, value)
+            end
+            entries_as_objects << new_obj
+            end
+          end
+        else
+          super
+        end
+        entries_as_objects
+      end
+      def respond_to_missing?(symbol, priv = false)
+        symbol.to_s.start_with?('find_by_')
+      end
     end
     def save!
       @id = self.class.save!(self)
