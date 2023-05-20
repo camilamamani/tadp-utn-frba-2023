@@ -46,5 +46,15 @@ describe 'Herencia' do
     it 'Modulo Person devuelve instancias de estudiantes y ayudantes' do
       expect(Person.all_instances.size).to eq(2)
     end
+    it 'Estudiante find_by_name devuelve los estudiante o ayudantes con name = Juana' do
+      estudiante_db = Student.find_by_name("Juana")
+      expect(estudiante_db[0].name).to eq("Juana")
+      expect(estudiante_db[0].age).to eq(22)
+    end
+    it 'Estudiante find_by_name devuelve los estudiante o ayudantes con name = Juan' do
+      estudiante_db = Student.find_by_name("Juan")
+      expect(estudiante_db[0].name).to eq("Juan")
+      expect(estudiante_db[0].age).to eq(20)
+    end
   end
 end

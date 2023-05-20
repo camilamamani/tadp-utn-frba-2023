@@ -164,6 +164,10 @@ module Persistence
           message = symbol.to_s.gsub('find_by_', '').to_sym
           searched_value  = args[0]
 
+          objects_from_subclass = self.sub_classes.flat_map do |subclass|
+            subclass.send(symbol, *args)
+          end
+
           class_name = self.name.downcase
           table = TADB::DB.table(class_name)
 
@@ -182,7 +186,7 @@ module Persistence
         else
           super
         end
-        entries_as_objects
+        entries_as_objects + objects_from_subclass
       end
       def respond_to_missing?(symbol, priv = false)
         symbol.to_s.start_with?('find_by_')
