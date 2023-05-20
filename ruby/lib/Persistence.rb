@@ -4,7 +4,20 @@ require_relative 'Table'
 module Persistence
   MissingIdError = Class.new(StandardError)
   module ClassMethods
-      def get_attrs_from_modules
+    attr_accessor :sub_classes
+    def included(sub_class)
+      self.sub_classes.push(sub_class)
+    end
+    def inherited(sub_class)
+      self.sub_classes.push(sub_class)
+    end
+    def sub_classes
+      unless @sub_classes
+        @sub_classes = []
+      end
+      @sub_classes
+    end
+    def get_attrs_from_modules
         modules = included_modules.select do |m|
           m.respond_to?(:attrs_to_persist)
         end
@@ -133,13 +146,17 @@ module Persistence
       end
 
       def all_instances
+        objects_from_subclass = self.sub_classes.flat_map do |subclass|
+          subclass.all_instances
+        end
+
         class_name = self.name.downcase
         table = TADB::DB.table(class_name)
         entries_as_objects = []
         table.entries.each do |entry|
           entries_as_objects << get_object(entry, class_name)
         end
-        entries_as_objects
+        entries_as_objects + objects_from_subclass
       end
 
       def method_missing(symbol, *args, &block)
