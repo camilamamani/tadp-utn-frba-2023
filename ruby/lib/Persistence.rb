@@ -1,31 +1,33 @@
 require "tadb"
 require_relative 'PersistentAttribute'
+require_relative 'Table'
 module Persistence
   MissingIdError = Class.new(StandardError)
   module ClassMethods
       def has_one(type, named:)
-        persistent_attribute = PersistentAttribute.new(type, named);
-        self.attrs_to_persist[named] = persistent_attribute
+        create_instance_variable(type, named:)
+      end
+      def has_many(type, named:)
+        attr = create_instance_variable(type, named:)
+        self.define_method(:initialize) do
+          self.send(attr.attr_name.to_s + '=', [])
+          super()
+        end
+      end
 
+      def create_instance_variable(type, named:)
+        attr = PersistentAttribute.new(type, named);
+        self.attrs_to_persist[named] = attr
         attr_accessor named
+        attr
       end
       def attrs_to_persist
         @attrs_to_persist ||= {}
       end
 
       def save!(one_instance)
-        class_name = one_instance.class.name.downcase
-
-        hash = {}
-        @attrs_to_persist.each_value do |attr|
-          hash = hash.merge(attr.get_hash_attr_value(one_instance))
-        end
-
-        if one_instance.id != nil
-          TADB::DB.table(class_name).delete(one_instance.id)
-        end
-
-        row_id = TADB::DB.table(class_name).insert(hash)
+        row_id = Table.save_primitive_attributes(attrs_to_persist, one_instance)
+        Table.save_objects_attributes(attrs_to_persist, one_instance, row_id)
         row_id
       end
 
@@ -37,9 +39,19 @@ module Persistence
           var_name = "@"+name.to_s
           value = row[name]
           if attr.value_is_persistent
-            id = value
-            object_entry = find_by_table_name_and_id(attr.class_type.to_s.downcase, id)
-            value = attr.class_type.get_object_from_entry(object_entry)
+            if value == 'intermediate_table'
+              second_table_name = attr.class_type.to_s.downcase
+              table_name = "#{class_name}_#{second_table_name}"
+
+              object_entries = find_by_intermediate_table_object_entries(table_name)
+              value = object_entries.map do |object_entry|
+                attr.class_type.get_object_from_entry(object_entry)
+              end
+            else
+              id = value
+              object_entry = find_by_table_name_and_id(attr.class_type.to_s.downcase, id)
+              value = attr.class_type.get_object_from_entry(object_entry)
+            end
           end
           one_instance.instance_variable_set(var_name, value)
         end
@@ -52,7 +64,14 @@ module Persistence
         table.delete(instance.id)
         instance.instance_variable_set("@id", nil)
       end
-
+      def find_by_intermediate_table_object_entries(class_name)
+        table = TADB::DB.table(class_name)
+        second_table_name = class_name.split("_").last
+        id_attr = "id_"+second_table_name
+        table.entries.map do |id_entry|
+          find_by_table_name_and_id(second_table_name, id_entry[id_attr.to_sym])
+        end
+      end
       def find_by_table_name_and_id(class_name, id)
         table = TADB::DB.table(class_name)
         entry = table.entries.find { |entry| entry[:id] == id }
