@@ -16,7 +16,7 @@ module Persistence
       end
       def get_attrs_from_super_class
         hash = {}
-        if self.ancestors.respond_to?(:attrs_to_persist)
+        if self.respond_to?(:superclass)
           super_class = self.superclass
           if super_class.include?(Persistence)
             hash = super_class.attrs_to_persist

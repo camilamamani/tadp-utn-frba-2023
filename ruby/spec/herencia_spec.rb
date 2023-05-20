@@ -3,14 +3,17 @@ describe 'Herencia' do
   context 'cuando se quiere persistir una clase que incluye un modulo' do
     let(:juana){ Student.new }
     let(:juan){ AssistantProfessor.new }
+    after do
+      TADB::DB.clear_all
+    end
     before do
       module Person
         include Persistence
         has_one String, named: :name
       end
       class Student
-        include Persistence
         include Person
+        include Persistence
         has_one Numeric, named: :age
       end
       class AssistantProfessor < Student
@@ -31,12 +34,12 @@ describe 'Herencia' do
       expect(juana.name).to eq("Juana")
       expect(juana.age).to eq(22)
     end
-    it 'se guardan todos los atributos en el mismo registro de la bd' do
+    it 'Student include Person guarda todos los atributos en el mismo registro' do
       juana_db = Student.all_instances[0]
       expect(juana_db.name).to eq("Juana")
       expect(juana_db.age).to eq(22)
     end
-    it 'se guardan todos los atributos en el mismo registro de la bd' do
+    it 'AssistantProfessor < Student include Person guarda todos los atributos en el mismo registro' do
       juan_db = AssistantProfessor.all_instances[0]
       expect(juan_db.name).to eq("Juan")
       expect(juan_db.age).to eq(20)
