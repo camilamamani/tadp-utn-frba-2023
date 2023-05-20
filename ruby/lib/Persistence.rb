@@ -4,10 +4,37 @@ require_relative 'Table'
 module Persistence
   MissingIdError = Class.new(StandardError)
   module ClassMethods
+      def get_attrs_from_modules
+        modules = included_modules.select do |m|
+          m.respond_to?(:attrs_to_persist)
+        end
+        hash = {}
+        modules.each do |m|
+          hash = hash.merge(m.attrs_to_persist)
+        end
+        hash
+      end
+      def get_attrs_from_super_class
+        hash = {}
+        if self.ancestors.respond_to?(:attrs_to_persist)
+          super_class = self.superclass
+          if super_class.include?(Persistence)
+            hash = super_class.attrs_to_persist
+          end
+        end
+        hash
+      end
+      def get_attrs_included
+        attrs_super_class = get_attrs_from_super_class
+        attrs_module = get_attrs_from_modules
+        @attrs_to_persist = self.attrs_to_persist.merge(attrs_module.merge(attrs_super_class))
+      end
       def has_one(type, named:)
+        get_attrs_included
         create_instance_variable(type, named:)
       end
       def has_many(type, named:)
+        get_attrs_included
         attr = create_instance_variable(type, named:)
         self.define_method(:initialize) do
           self.send(attr.attr_name.to_s + '=', [])
