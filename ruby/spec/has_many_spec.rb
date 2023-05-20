@@ -40,5 +40,19 @@ describe 'Persistence Tests' do
 
       expect(pablo.grades.last.value).to eq(10)
     end
+
+    it 'Se guarda estudiante y notas, all instances devuelve todo' do
+      pablo.grades.push(Grade.new)
+      pablo.grades.last.value = 10
+      pablo.grades.push(Grade.new)
+      pablo.grades.last.value = 6
+      pablo.save!
+
+      student_db = Student.all_instances[0]
+      grades_db = student_db.grades
+      expect(Student.all_instances.size).to eq(1)
+      expect(grades_db.size).to eq(2)
+      expect(grades_db.last.value).to eq(6)
+    end
   end
 end

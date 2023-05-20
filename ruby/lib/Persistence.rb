@@ -39,19 +39,7 @@ module Persistence
           var_name = "@"+name.to_s
           value = row[name]
           if attr.value_is_persistent
-            if value == 'intermediate_table'
-              second_table_name = attr.class_type.to_s.downcase
-              table_name = "#{class_name}_#{second_table_name}"
-
-              object_entries = find_by_intermediate_table_object_entries(table_name)
-              value = object_entries.map do |object_entry|
-                attr.class_type.get_object_from_entry(object_entry)
-              end
-            else
-              id = value
-              object_entry = find_by_table_name_and_id(attr.class_type.to_s.downcase, id)
-              value = attr.class_type.get_object_from_entry(object_entry)
-            end
+            value = get_object_from_persistent_value(attr, value, class_name)
           end
           one_instance.instance_variable_set(var_name, value)
         end
@@ -77,6 +65,23 @@ module Persistence
         entry = table.entries.find { |entry| entry[:id] == id }
         entry
       end
+
+      def get_object_from_persistent_value(attr, value, class_name)
+        if value == 'intermediate_table'
+          second_table_name = attr.class_type.to_s.downcase
+          table_name = "#{class_name}_#{second_table_name}"
+
+          object_entries = find_by_intermediate_table_object_entries(table_name)
+          value = object_entries.map do |object_entry|
+            attr.class_type.get_object_from_entry(object_entry)
+          end
+        else
+          id = value
+          object_entry = find_by_table_name_and_id(attr.class_type.to_s.downcase, id)
+          value = attr.class_type.get_object_from_entry(object_entry)
+        end
+        value
+      end
       def get_object_from_entry(entry)
         new_obj = self.new()
         attrs_to_persist.each do |name,_|
@@ -87,15 +92,29 @@ module Persistence
         new_obj
       end
 
+      def get_object(entry, class_name)
+        new_obj = self.new()
+        attrs_to_persist.each do |name, attr|
+          var_name = "@"+name.to_s
+          value = entry[name]
+          if attr.value_is_persistent
+            value = get_object_from_persistent_value(attr, value, class_name)
+          end
+          new_obj.instance_variable_set(var_name, value)
+        end
+        new_obj
+      end
+
       def all_instances
         class_name = self.name.downcase
         table = TADB::DB.table(class_name)
         entries_as_objects = []
         table.entries.each do |entry|
-          entries_as_objects << get_object_from_entry(entry)
+          entries_as_objects << get_object(entry, class_name)
         end
         entries_as_objects
       end
+
       def method_missing(symbol, *args, &block)
         if symbol.to_s.start_with?('find_by_') && args.length == 1
           message = symbol.to_s.gsub('find_by_', '').to_sym

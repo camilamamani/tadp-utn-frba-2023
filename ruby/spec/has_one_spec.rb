@@ -74,5 +74,12 @@ describe 'Persistence Tests' do
       expect(returned_grade.value).to eq(5)
     end
 
+    it 'Se guarda estudiante y nota, all instances devuelve nota como objeto' do
+      student_db = Student.all_instances[0]
+      grade_db = student_db.grade
+      expect(Student.all_instances.size).to eq(1)
+      expect(grade_db.value).to eq(8)
+    end
+
   end
 end
