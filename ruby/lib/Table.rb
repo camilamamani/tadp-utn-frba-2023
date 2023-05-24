@@ -17,9 +17,7 @@ class Table
     attrs_to_persist.each_value do |attr|
       value = one_instance.send(attr.attr_name)
       table_name = one_instance.class.name.downcase
-      if value.is_a?(Array)
-        attr.save_array(value, id, table_name)
-      end
+      attr.save_array(value, id, table_name)
     end
   end
 

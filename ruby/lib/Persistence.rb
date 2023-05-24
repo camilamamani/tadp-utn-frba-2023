@@ -1,5 +1,6 @@
 require "tadb"
 require_relative 'PersistentAttribute'
+require_relative 'PersistentAttributeMany'
 require_relative 'Table'
 module Persistence
   MissingIdError = Class.new(StandardError)
@@ -44,23 +45,22 @@ module Persistence
       end
       def has_one(type, named:)
         get_attrs_included
-        create_instance_variable(type, named:)
+        attr = PersistentAttribute.new(type, named);
+        self.attrs_to_persist[named] = attr
+        attr_accessor named
+        attr
       end
       def has_many(type, named:)
         get_attrs_included
-        attr = create_instance_variable(type, named:)
+        attr = PersistentAttributeMany.new(type, named);
+        self.attrs_to_persist[named] = attr
+        attr_accessor named
         self.define_method(:initialize) do
           self.send(attr.attr_name.to_s + '=', [])
           super()
         end
       end
 
-      def create_instance_variable(type, named:)
-        attr = PersistentAttribute.new(type, named);
-        self.attrs_to_persist[named] = attr
-        attr_accessor named
-        attr
-      end
       def attrs_to_persist
         @attrs_to_persist ||= {}
       end
