@@ -5,7 +5,7 @@ describe 'Persistence Tests' do
       class Student
         include Persistence
         has_one String, named: :full_name
-        has_one Numeric, named: :age
+        has_one Integer, named: :age
         has_one Boolean, named: :is_regular
       end
 

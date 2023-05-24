@@ -66,6 +66,10 @@ module Persistence
       end
 
       def save!(one_instance)
+        attrs_to_persist.each do |_, attr|
+          attr.validate(one_instance)
+        end
+
         row_id = Table.save_primitive_attributes(attrs_to_persist, one_instance)
         Table.save_objects_attributes(attrs_to_persist, one_instance, row_id)
         row_id

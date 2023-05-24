@@ -1,9 +1,22 @@
 class PersistentAttribute
+  TypeError = Class.new(StandardError)
   attr_accessor :class_type, :attr_name
   def initialize(class_type, attribute)
     @class_type = class_type
     @attr_name = attribute
   end
+  def validate(one_instance)
+    value = one_instance.send(attr_name)
+    if attr_name.to_s != "id"
+      value_type =  value.class.to_s
+      if  value_type != class_type.to_s
+        unless value_type == "TrueClass"|| value_type == "FalseClass"
+          raise TypeError
+        end
+      end
+    end
+  end
+
 
   def get_hash_attr_value(one_instance)
     hash = {}
