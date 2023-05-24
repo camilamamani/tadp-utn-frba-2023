@@ -1,13 +1,42 @@
 class PersistentAttribute
   TypeError = Class.new(StandardError)
-  attr_accessor :class_type, :attr_name
+  attr_accessor :class_type, :attr_name, :content_validations
   def initialize(class_type, attribute)
     @class_type = class_type
     @attr_name = attribute
   end
+
+  def setContentValidations(**validations)
+    @content_validations = *validations
+  end
+  def validate_content(one_instance)
+    attr_value = one_instance.send(attr_name)
+    unless content_validations.nil?
+      content_validations.each do |param, value|
+        puts "param: #{param}, value: #{value}"
+        case param.to_s
+        when "no_blank"
+          if value
+            if attr_value == "" || attr_value.nil?
+              raise TypeError
+            end
+          end
+        when "from"
+          puts "It's a banana!"
+        when "to"
+          puts "It's an orange!"
+        when "validate"
+          puts("algo")
+        else
+          puts "nada"
+        end
+      end
+    end
+  end
+
   def validate(one_instance)
     value = one_instance.send(attr_name)
-    if attr_name.to_s != "id"
+    if attr_name.to_s != "id" && !value.nil?
       value_type =  value.class.to_s
       if  value_type != class_type.to_s
         unless value_type == "TrueClass"|| value_type == "FalseClass"
@@ -15,6 +44,7 @@ class PersistentAttribute
         end
       end
     end
+    self.validate_content(one_instance)
   end
 
 

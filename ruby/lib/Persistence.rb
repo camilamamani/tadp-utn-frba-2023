@@ -43,11 +43,12 @@ module Persistence
         attrs_module = get_attrs_from_modules
         @attrs_to_persist = self.attrs_to_persist.merge(attrs_module.merge(attrs_super_class))
       end
-      def has_one(type, named:)
+      def has_one(type, named:, **args)
         get_attrs_included
         attr = PersistentAttribute.new(type, named);
         self.attrs_to_persist[named] = attr
         attr_accessor named
+        attr.setContentValidations(**args)
         attr
       end
       def has_many(type, named:)
