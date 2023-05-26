@@ -90,7 +90,7 @@ module Persistence
         var_name = "@"+name.to_s
         value = row[name]
         if attr.value_is_persistent
-          value = get_object_from_persistent_value(attr, value, get_table_name)
+          value = attr.get_object_from_persistent_value(value, get_table_name)
         end
         one_instance.instance_variable_set(var_name, value)
       end
@@ -103,36 +103,10 @@ module Persistence
       instance.instance_variable_set("@id", nil)
     end
 
-    def find_by_intermediate_table_object_entries(class_name)
-      table = TADB::DB.table(class_name)
-      second_table_name = class_name.split("_").last
-      id_attr = "id_"+second_table_name
-      table.entries.map do |id_entry|
-        find_by_table_name_and_id(second_table_name, id_entry[id_attr.to_sym])
-      end
-    end
-
     def find_by_table_name_and_id(class_name, id)
       table = TADB::DB.table(class_name)
       entry = table.entries.find { |entry| entry[:id] == id }
       entry
-    end
-
-    def get_object_from_persistent_value(attr, value, class_name)
-      if value == 'intermediate_table'
-        second_table_name = attr.class_type.to_s.downcase
-        table_name = "#{class_name}_#{second_table_name}"
-
-        object_entries = find_by_intermediate_table_object_entries(table_name)
-        value = object_entries.map do |object_entry|
-          attr.class_type.get_object_from_entry(object_entry)
-        end
-      else
-        id = value
-        object_entry = find_by_table_name_and_id(attr.class_type.to_s.downcase, id)
-        value = attr.class_type.get_object_from_entry(object_entry)
-      end
-      value
     end
 
     def get_object_from_entry(entry)
@@ -152,7 +126,7 @@ module Persistence
         var_name = "@"+name.to_s
         value = entry[name]
         if attr.value_is_persistent
-          value = get_object_from_persistent_value(attr, value, class_name)
+          value = attr.get_object_from_persistent_value(value, class_name)
         end
         setBooleanValue(value)
         new_obj.instance_variable_set(var_name, value)
