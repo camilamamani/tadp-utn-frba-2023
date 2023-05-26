@@ -5,7 +5,9 @@ class PersistentAttribute
   ValidateError = Class.new(StandardError)
   UnknownValidationError = Class.new(StandardError)
   UnInitializedVariable = Class.new(StandardError)
+  
   attr_accessor :class_type, :attr_name, :optional_params
+  
   def initialize(class_type, attribute, opt_params)
     @class_type = class_type
     @attr_name = attribute
@@ -20,6 +22,7 @@ class PersistentAttribute
       end
     end
   end
+  
   def validate_from_to(attr_value)
     from = optional_params[:from]
     to = optional_params[:to]
@@ -43,6 +46,7 @@ class PersistentAttribute
       end
     end
   end
+  
   def validate_content(one_instance)
     attr_value = one_instance.send(attr_name)
     validate_no_blank(attr_value)
@@ -62,7 +66,6 @@ class PersistentAttribute
     end
     self.validate_content(one_instance)
   end
-
 
   def get_hash_attr_value(one_instance)
     hash = {}
@@ -87,9 +90,11 @@ class PersistentAttribute
 
   def save_array(object_list, table_id, table_name)
   end
+  
   def value_is_persistent
     self.class_type.respond_to?(:has_one)
   end
+  
   def valor_default
     valor = optional_params[:default]
     valor

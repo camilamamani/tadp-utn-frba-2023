@@ -2,6 +2,7 @@ class PersistentAttributeMany < PersistentAttribute
   def initialize(class_type, attribute, opt_params)
     super(class_type, attribute, opt_params)
   end
+  
   def save_array(object_list, table_id, table_name)
     second_table_name = object_list[0].class.name.downcase
     intermediate_table_name = "#{table_name}_#{second_table_name}"
@@ -11,6 +12,7 @@ class PersistentAttributeMany < PersistentAttribute
       TADB::DB.table(intermediate_table_name).insert(hash)
     end
   end
+  
   def validate_types(one_instance)
     values = one_instance.send(attr_name)
     if !values.nil?
@@ -23,6 +25,7 @@ class PersistentAttributeMany < PersistentAttribute
     end
     self.validate_content(one_instance)
   end
+  
   def validate_validate(attr_value_list)
     validation = optional_params[:validate]
     if validation
@@ -33,6 +36,7 @@ class PersistentAttributeMany < PersistentAttribute
       end
     end
   end
+  
   def valor_default
     valor = optional_params[:default]
     valor ? valor : []
