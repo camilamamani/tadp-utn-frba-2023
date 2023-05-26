@@ -84,14 +84,13 @@ module Persistence
     end
 
     def refresh!(one_instance)
-      class_name = one_instance.class.name.downcase
-      row = find_by_table_name_and_id(class_name, one_instance.id)
+      row = find_by_table_name_and_id(get_table_name, one_instance.id)
 
       attrs_to_persist.each do |name, attr|
         var_name = "@"+name.to_s
         value = row[name]
         if attr.value_is_persistent
-          value = get_object_from_persistent_value(attr, value, class_name)
+          value = get_object_from_persistent_value(attr, value, get_table_name)
         end
         one_instance.instance_variable_set(var_name, value)
       end
@@ -99,8 +98,7 @@ module Persistence
     end
 
     def forget!(instance)
-      class_name = instance.class.name.downcase
-      table = TADB::DB.table(class_name)
+      table = TADB::DB.table(get_table_name)
       table.delete(instance.id)
       instance.instance_variable_set("@id", nil)
     end
@@ -172,11 +170,10 @@ module Persistence
       objects_from_subclass = self.sub_classes.flat_map do |subclass|
         subclass.all_instances
       end
-      class_name = self.name.downcase
-      table = TADB::DB.table(class_name)
+      table = TADB::DB.table(get_table_name)
       entries_as_objects = []
       table.entries.each do |entry|
-        entries_as_objects << get_object(entry, class_name)
+        entries_as_objects << get_object(entry, get_table_name)
       end
       entries_as_objects + objects_from_subclass
     end
@@ -190,9 +187,7 @@ module Persistence
           subclass.send(symbol, *args)
         end
 
-        class_name = self.name.downcase
-        table = TADB::DB.table(class_name)
-
+        table = TADB::DB.table(get_table_name)
         entries_as_objects = []
         table.entries.each do |entry|
           if entry[message] == searched_value
@@ -215,6 +210,10 @@ module Persistence
       symbol.to_s.start_with?('find_by_')
     end
 
+    def get_table_name
+      self.name.downcase
+    end
+
   end
     
   def save!
@@ -234,7 +233,7 @@ module Persistence
     end
     self.class.forget!(self)
   end
-  
+
   def self.included(base)
     base.extend(ClassMethods)
     base.attrs_to_persist[:id] = PersistentAttribute.new(String, :id, {})
