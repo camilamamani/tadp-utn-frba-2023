@@ -134,16 +134,30 @@ module Persistence
       if value.to_s == "false" ? (value = false) : value; end
       value
     end
+    
+    def get_all_objects_from_table_with_opt_condition(condition = {})
+      attr_name = condition[:attr_name]
+      searched_value = condition[:value]
       
+      table = TADB::DB.table(get_table_name)
+      objects = []
+      table.entries.each do |entry|
+        if !condition.nil?
+          if entry[attr_name] == searched_value
+            objects << get_object(entry)
+          end
+        else
+          objects << get_object(entry)
+        end
+      end
+      objects
+    end
+    
     def all_instances
       objects_from_subclass = self.sub_classes.flat_map do |subclass|
         subclass.all_instances
       end
-      table = TADB::DB.table(get_table_name)
-      entries_as_objects = []
-      table.entries.each do |entry|
-        entries_as_objects << get_object(entry)
-      end
+      entries_as_objects = get_all_objects_from_table_with_opt_condition
       entries_as_objects + objects_from_subclass
     end
 
@@ -155,20 +169,7 @@ module Persistence
         objects_from_subclass = self.sub_classes.flat_map do |subclass|
           subclass.send(symbol, *args)
         end
-
-        table = TADB::DB.table(get_table_name)
-        entries_as_objects = []
-        table.entries.each do |entry|
-          if entry[message] == searched_value
-            new_obj = self.new()
-            attrs_to_persist.each do |name,_|
-              var_name = "@"+name.to_s
-              value = entry[name]
-              new_obj.instance_variable_set(var_name, value)
-          end
-          entries_as_objects << new_obj
-          end
-        end
+        entries_as_objects = get_all_objects_from_table_with_opt_condition({attr_name: message, value: searched_value})
       else
         super
       end
