@@ -13,12 +13,9 @@ module Persistence
       self.sub_classes.push(sub_class)
     end
     def sub_classes
-      unless @sub_classes
-        @sub_classes = []
-      end
-      @sub_classes
+      @sub_classes||=[]
     end
-    def get_attrs_from_modules
+    def get_attrs_from_modules_and_superclass
         modules = included_modules.select do |m|
           m.respond_to?(:attrs_to_persist)
         end
@@ -26,34 +23,30 @@ module Persistence
         modules.each do |m|
           hash = hash.merge(m.attrs_to_persist)
         end
-        hash
-      end
-      def get_attrs_from_super_class
-        hash = {}
         if self.respond_to?(:superclass)
           super_class = self.superclass
           if super_class.include?(Persistence)
-            hash = super_class.attrs_to_persist
+            hash = hash.merge(super_class.attrs_to_persist)
           end
         end
         hash
       end
+
       def get_attrs_included
-        attrs_super_class = get_attrs_from_super_class
-        attrs_module = get_attrs_from_modules
-        @attrs_to_persist = self.attrs_to_persist.merge(attrs_module.merge(attrs_super_class))
+        external_attrs = get_attrs_from_modules_and_superclass
+        @attrs_to_persist = self.attrs_to_persist.merge(external_attrs)
       end
       def has_one(type, named:, **args)
         get_attrs_included
-        attr = PersistentAttribute.new(type, named);
+        attr = PersistentAttribute.new(type, named, **args);
         self.attrs_to_persist[named] = attr
         attr_accessor named
-        attr.setContentValidations(**args)
+
         attr
       end
-      def has_many(type, named:)
+      def has_many(type, named:, **args)
         get_attrs_included
-        attr = PersistentAttributeMany.new(type, named);
+        attr = PersistentAttributeMany.new(type, named, **args);
         self.attrs_to_persist[named] = attr
         attr_accessor named
         self.define_method(:initialize) do
@@ -68,7 +61,7 @@ module Persistence
 
       def save!(one_instance)
         attrs_to_persist.each do |_, attr|
-          attr.validate(one_instance)
+          attr.validate_types(one_instance)
         end
 
         row_id = Table.save_primitive_attributes(attrs_to_persist, one_instance)
@@ -132,6 +125,7 @@ module Persistence
         attrs_to_persist.each do |name,_|
           var_name = "@"+name.to_s
           value = entry[name]
+          setBooleanValue(value)
           new_obj.instance_variable_set(var_name, value)
         end
         new_obj
@@ -145,11 +139,17 @@ module Persistence
           if attr.value_is_persistent
             value = get_object_from_persistent_value(attr, value, class_name)
           end
+          setBooleanValue(value)
           new_obj.instance_variable_set(var_name, value)
         end
         new_obj
       end
 
+    def setBooleanValue(value)
+      if value.to_s == "true" ? (value = true) : value; end
+      if value.to_s == "false" ? (value = false) : value; end
+      value
+    end
       def all_instances
         objects_from_subclass = self.sub_classes.flat_map do |subclass|
           subclass.all_instances

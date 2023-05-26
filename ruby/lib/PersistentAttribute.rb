@@ -1,19 +1,19 @@
 class PersistentAttribute
   TypeError = Class.new(StandardError)
+  FromError = Class.new(StandardError)
+  ToError = Class.new(StandardError)
+  ValidateError = Class.new(StandardError)
+  UnknownValidationError = Class.new(StandardError)
   attr_accessor :class_type, :attr_name, :content_validations
-  def initialize(class_type, attribute)
+  def initialize(class_type, attribute, **validations)
     @class_type = class_type
     @attr_name = attribute
-  end
-
-  def setContentValidations(**validations)
     @content_validations = *validations
   end
   def validate_content(one_instance)
     attr_value = one_instance.send(attr_name)
     unless content_validations.nil?
       content_validations.each do |param, value|
-        puts "param: #{param}, value: #{value}"
         case param.to_s
         when "no_blank"
           if value
@@ -22,19 +22,25 @@ class PersistentAttribute
             end
           end
         when "from"
-          puts "It's a banana!"
+          if attr_value < value
+            raise FromError
+          end
         when "to"
-          puts "It's an orange!"
+          if attr_value > value
+            raise ToError
+          end
         when "validate"
-          puts("algo")
+          unless value.call(attr_value)
+            raise ValidateError
+          end
         else
-          puts "nada"
+          raise UnknownValidationError
         end
       end
     end
   end
 
-  def validate(one_instance)
+  def validate_types(one_instance)
     value = one_instance.send(attr_name)
     if attr_name.to_s != "id" && !value.nil?
       value_type =  value.class.to_s
