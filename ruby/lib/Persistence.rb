@@ -2,6 +2,7 @@ require "tadb"
 require_relative 'PersistentAttribute'
 require_relative 'PersistentAttributeMany'
 require_relative 'Table'
+
 module Persistence
   MissingIdError = Class.new(StandardError)
   
@@ -83,20 +84,6 @@ module Persistence
       row_id
     end
 
-    def refresh!(one_instance)
-      row = find_by_table_name_and_id(get_table_name, one_instance.id)
-
-      attrs_to_persist.each do |name, attr|
-        var_name = "@"+name.to_s
-        value = row[name]
-        if attr.value_is_persistent
-          value = attr.get_object_from_persistent_value(value, get_table_name)
-        end
-        one_instance.instance_variable_set(var_name, value)
-      end
-      one_instance
-    end
-
     def forget!(instance)
       table = TADB::DB.table(get_table_name)
       table.delete(instance.id)
@@ -120,18 +107,26 @@ module Persistence
       new_obj
     end
 
-    def get_object(entry, class_name)
-      new_obj = self.new()
+    def get_object_with_values(entry, object)
       attrs_to_persist.each do |name, attr|
         var_name = "@"+name.to_s
         value = entry[name]
         if attr.value_is_persistent
-          value = attr.get_object_from_persistent_value(value, class_name)
+          value = attr.get_object_from_persistent_value(value, get_table_name)
         end
-        setBooleanValue(value)
-        new_obj.instance_variable_set(var_name, value)
+        object.instance_variable_set(var_name, value)
       end
-      new_obj
+      object
+    end
+
+    def refresh!(one_instance)
+      row = find_by_table_name_and_id(get_table_name, one_instance.id)
+      get_object_with_values(row, one_instance)
+    end
+
+    def get_object(entry)
+      new_obj = self.new()
+      get_object_with_values(entry, new_obj)
     end
 
     def setBooleanValue(value)
@@ -147,7 +142,7 @@ module Persistence
       table = TADB::DB.table(get_table_name)
       entries_as_objects = []
       table.entries.each do |entry|
-        entries_as_objects << get_object(entry, get_table_name)
+        entries_as_objects << get_object(entry)
       end
       entries_as_objects + objects_from_subclass
     end
