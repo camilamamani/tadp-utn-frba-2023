@@ -22,6 +22,7 @@ describe 'Persistence Tests' do
     it 'deletes entry' do
       alejandro.full_name = "Alejandro"
       alejandro.age  = 25
+      alejandro.is_regular = false
       alejandro.save!
 
       alejandro.forget!

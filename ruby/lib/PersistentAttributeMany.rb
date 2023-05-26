@@ -1,6 +1,6 @@
 class PersistentAttributeMany < PersistentAttribute
-  def initialize(class_type, attribute, **validations)
-    super(class_type, attribute, **validations)
+  def initialize(class_type, attribute, opt_params)
+    super(class_type, attribute, opt_params)
   end
   def save_array(object_list, table_id, table_name)
     second_table_name = object_list[0].class.name.downcase
@@ -23,24 +23,18 @@ class PersistentAttributeMany < PersistentAttribute
     end
     self.validate_content(one_instance)
   end
-
-  def validate_content(one_instance)
-    attr_values = one_instance.send(attr_name)
-    unless content_validations.nil?
-      content_validations.each do |param, value|
-        case param.to_s
-        when "validate"
-          attr_values.each do |attr_value|
-            unless value.call(attr_value)
-              raise ValidateError
-            end
-          end
-        else
-          raise UnknownValidationError
+  def validate_validate(attr_value_list)
+    validation = optional_params[:validate]
+    if validation
+      attr_value_list.each do |attr_value|
+        unless validation.call(attr_value)
+          raise ValidateError
         end
       end
     end
   end
-
-
+  def valor_default
+    valor = optional_params[:default]
+    valor ? valor : []
+  end
 end

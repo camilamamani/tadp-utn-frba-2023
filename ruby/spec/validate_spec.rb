@@ -17,11 +17,20 @@ describe 'Persistence Tests' do
         has_one Boolean, named: :is_regular
         has_one Grade, named: :grade, validate: proc{ |x| x.value > 2 }
         has_many Course, named: :courses, validate: proc{ |x| x.hours > 20 }
+        has_one String, named: :surname, default: "perez"
       end
     end
 
     after do
       TADB::DB.clear_all
+    end
+
+    it 'Al momento de inicializar el estudiante, surname es perez' do
+      expect(alejandro.surname).to eq("perez")
+    end
+
+    it 'Al momento de inicializar el estudiante, cursos es []' do
+      expect(alejandro.courses).to eq([])
     end
 
     it 'Validate da error si campo full_name es numero' do
@@ -64,11 +73,22 @@ describe 'Persistence Tests' do
     it 'Validate no da ningun error si atributos satisfacen condiciones' do
       alejandro.full_name = "alejandro"
       alejandro.age = 15
+      alejandro.is_regular = true
       alejandro.grade = Grade.new
       alejandro.grade.value = 10
       alejandro.courses.push(Course.new)
       alejandro.courses.last.hours = 22
       expect{alejandro.save!}.not_to raise_error(StandardError)
+    end
+
+    it 'Al momento de guardar si hay alguna variable con valor de inicializacion vacio da error' do
+      alejandro.full_name = "alejandro"
+      alejandro.age = 15
+      alejandro.grade = Grade.new
+      alejandro.grade.value = 10
+      alejandro.courses.push(Course.new)
+      alejandro.courses.last.hours = 22
+      expect{alejandro.save!}.to raise_error(PersistentAttribute::UnInitializedVariable)
     end
   end
 end

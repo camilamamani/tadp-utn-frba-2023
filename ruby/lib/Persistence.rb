@@ -38,22 +38,30 @@ module Persistence
       end
       def has_one(type, named:, **args)
         get_attrs_included
-        attr = PersistentAttribute.new(type, named, **args);
+        attr = PersistentAttribute.new(type, named, args);
         self.attrs_to_persist[named] = attr
         attr_accessor named
-
+        init_default_values(attrs_to_persist)
         attr
       end
       def has_many(type, named:, **args)
         get_attrs_included
-        attr = PersistentAttributeMany.new(type, named, **args);
+        attr = PersistentAttributeMany.new(type, named, args);
         self.attrs_to_persist[named] = attr
         attr_accessor named
-        self.define_method(:initialize) do
-          self.send(attr.attr_name.to_s + '=', [])
-          super()
-        end
+        init_default_values(attrs_to_persist)
       end
+
+    def init_default_values(attrs)
+      self.define_method(:initialize) do
+        attrs.each do |_,attr|
+          unless attr.valor_default.nil?
+            self.send(attr.attr_name.to_s + '=', attr.valor_default)
+          end
+        end
+        super()
+      end
+    end
 
       def attrs_to_persist
         @attrs_to_persist ||= {}
@@ -216,7 +224,7 @@ module Persistence
   end
   def self.included(base)
     base.extend(ClassMethods)
-    base.attrs_to_persist[:id] = PersistentAttribute.new(String, :id)
+    base.attrs_to_persist[:id] = PersistentAttribute.new(String, :id, {})
     base.send(:attr_accessor, :id)
   end
 end

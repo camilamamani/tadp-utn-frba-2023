@@ -4,40 +4,50 @@ class PersistentAttribute
   ToError = Class.new(StandardError)
   ValidateError = Class.new(StandardError)
   UnknownValidationError = Class.new(StandardError)
-  attr_accessor :class_type, :attr_name, :content_validations
-  def initialize(class_type, attribute, **validations)
+  UnInitializedVariable = Class.new(StandardError)
+  attr_accessor :class_type, :attr_name, :optional_params
+  def initialize(class_type, attribute, opt_params)
     @class_type = class_type
     @attr_name = attribute
-    @content_validations = *validations
+    @optional_params = opt_params
+  end
+
+  def validate_no_blank(attr_value)
+    no_blank = optional_params[:no_blank]
+    if no_blank && class_type == String
+      if attr_value == "" || attr_value.nil?
+        raise TypeError
+      end
+    end
+  end
+  def validate_from_to(attr_value)
+    from = optional_params[:from]
+    to = optional_params[:to]
+    if from
+      if attr_value < from
+        raise FromError
+      end
+    end
+    if to
+      if attr_value > to
+        raise ToError
+      end
+    end
+  end
+
+  def validate_validate(attr_value)
+    validation = optional_params[:validate]
+    if validation
+      unless validation.call(attr_value)
+        raise ValidateError
+      end
+    end
   end
   def validate_content(one_instance)
     attr_value = one_instance.send(attr_name)
-    unless content_validations.nil?
-      content_validations.each do |param, value|
-        case param.to_s
-        when "no_blank"
-          if value
-            if attr_value == "" || attr_value.nil?
-              raise TypeError
-            end
-          end
-        when "from"
-          if attr_value < value
-            raise FromError
-          end
-        when "to"
-          if attr_value > value
-            raise ToError
-          end
-        when "validate"
-          unless value.call(attr_value)
-            raise ValidateError
-          end
-        else
-          raise UnknownValidationError
-        end
-      end
-    end
+    validate_no_blank(attr_value)
+    validate_from_to(attr_value)
+    validate_validate(attr_value)
   end
 
   def validate_types(one_instance)
@@ -57,7 +67,10 @@ class PersistentAttribute
   def get_hash_attr_value(one_instance)
     hash = {}
     value = one_instance.send(attr_name)
-    value = (value.nil? && attr_name.to_s != "id") ? "..." : value
+    value = (value.nil? && attr_name.to_s != "id") ? valor_default: value
+    if value.nil? && attr_name.to_s != "id"
+      raise UnInitializedVariable
+    end
     if !value.nil? && value_is_persistent && !value.is_a?(Array)
       if value.id.nil?
         value = value.save!
@@ -76,5 +89,9 @@ class PersistentAttribute
   end
   def value_is_persistent
     self.class_type.respond_to?(:has_one)
+  end
+  def valor_default
+    valor = optional_params[:default]
+    valor
   end
 end
