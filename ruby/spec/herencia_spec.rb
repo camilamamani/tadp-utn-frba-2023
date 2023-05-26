@@ -14,7 +14,7 @@ describe 'Herencia' do
       class Student
         include Person
         include Persistence
-        has_one Numeric, named: :age
+        has_one Integer, named: :age
       end
       class AssistantProfessor < Student
         include Persistence

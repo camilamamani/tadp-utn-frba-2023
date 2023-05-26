@@ -35,7 +35,7 @@ describe 'Persistence Tests' do
     before do
       class Grade
         include Persistence
-        has_one Numeric, named: :value
+        has_one Integer, named: :value
       end
       class Student
         include Persistence
