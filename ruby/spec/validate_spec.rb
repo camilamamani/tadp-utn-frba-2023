@@ -38,9 +38,9 @@ describe 'Validate Tests' do
       expect{alejandro.save!}.to raise_error(PersistentAttribute::TypeError)
     end
 
-    it 'Validate da TypeError si campo es no_blank true' do
+    it 'Validate da Error si campo es no_blank true' do
       alejandro.full_name = ""
-      expect{alejandro.save!}.to raise_error(PersistentAttribute::TypeError)
+      expect{alejandro.save!}.to raise_error(PersistentAttribute::UnInitializedVariable)
     end
 
     it 'Validate da FromError si campo es < from value' do

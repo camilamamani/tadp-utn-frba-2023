@@ -24,15 +24,17 @@ class PersistentAttributeMany < PersistentAttribute
     end
     self.validate_content(one_instance)
   end
-  
-  def validate_validate(attr_value_list)
-    validation = optional_params[:validate]
-    if validation
-      attr_value_list.each do |attr_value|
-        unless validation.call(attr_value)
-          raise ValidateError
-        end
-      end
+
+  def exec_validation_condition(validation_name, attr_value_list, validation)
+    case validation_name
+    when "no_blank"
+      return attr_value_list.all? { |attr_value| attr_value == "" || attr_value.nil? }
+    when "from"
+      return attr_value_list.all? { |attr_value| attr_value < validation }
+    when "to"
+      return attr_value_list.all? { |attr_value| attr_value > validation }
+    when "validate"
+      return attr_value_list.all? { |attr_value| !validation.call(attr_value) }
     end
   end
   

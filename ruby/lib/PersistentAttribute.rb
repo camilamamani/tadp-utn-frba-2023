@@ -1,14 +1,15 @@
 require "Boolean"
 class PersistentAttribute
   PRIMITIVE_VALUES = [String, Boolean, Numeric]
-  TypeError = Class.new(StandardError)
+  VALIDATIONS = %w[no_blank from to validate]
+  UnInitializedVariable = Class.new(StandardError)
   FromError = Class.new(StandardError)
   ToError = Class.new(StandardError)
   ValidateError = Class.new(StandardError)
+  TypeError = Class.new(StandardError)
   UnknownValidationError = Class.new(StandardError)
-  UnInitializedVariable = Class.new(StandardError)
   ValueIsNotAcceptableToPersist = Class.new(StandardError)
-  
+
   attr_accessor :class_type, :attr_name, :optional_params
   
   def initialize(class_type, attribute, opt_params)
@@ -17,44 +18,47 @@ class PersistentAttribute
     @optional_params = opt_params
   end
 
-  def validate_no_blank(attr_value)
-    no_blank = optional_params[:no_blank]
-    if no_blank && class_type == String
-      if attr_value == "" || attr_value.nil?
-        raise TypeError
+  def raise_validation_error(validation_name)
+    case validation_name
+    when "no_blank"
+      raise UnInitializedVariable
+    when "from"
+      raise FromError
+    when "to"
+      raise ToError
+    when "validate"
+      raise ValidateError
+    end
+  end
+  def exec_validation_condition(validation_name, attr_value, validation)
+    case validation_name
+    when "no_blank"
+      return attr_value == "" || attr_value.nil?
+    when "from"
+      return attr_value < validation
+    when "to"
+      return attr_value > validation
+    when "validate"
+      return !validation.call(attr_value)
+    end
+  end
+  def exec_validation(validation_name, attr_value)
+    validation = optional_params[validation_name.to_sym]
+    if validation
+      if exec_validation_condition(validation_name, attr_value, validation)
+        raise_validation_error(validation_name)
       end
     end
   end
-  
-  def validate_from_to(attr_value)
-    from = optional_params[:from]
-    to = optional_params[:to]
-    if from
-      if attr_value < from
-        raise FromError
-      end
-    end
-    if to
-      if attr_value > to
-        raise ToError
-      end
+  def exec_all_validations(attr_value)
+    VALIDATIONS.each do |validation_name|
+      exec_validation(validation_name, attr_value)
     end
   end
 
-  def validate_validate(attr_value)
-    validation = optional_params[:validate]
-    if validation
-      unless validation.call(attr_value)
-        raise ValidateError
-      end
-    end
-  end
-  
   def validate_content(one_instance)
     attr_value = one_instance.send(attr_name)
-    validate_no_blank(attr_value)
-    validate_from_to(attr_value)
-    validate_validate(attr_value)
+    exec_all_validations(attr_value)
   end
 
   def is_a_primitive_value(value)
