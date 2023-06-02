@@ -17,8 +17,7 @@ class PersistentAttributeMany < PersistentAttribute
     values = one_instance.send(attr_name)
     if !values.nil?
       values.each do |value|
-        value_type =  value.class.to_s
-        if  value_type != class_type.to_s
+        unless  value.is_a?(class_type)
             raise TypeError
         end
       end

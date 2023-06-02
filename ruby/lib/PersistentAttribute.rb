@@ -1,10 +1,13 @@
+require "Boolean"
 class PersistentAttribute
+  PRIMITIVE_VALUES = [String, Boolean, Numeric]
   TypeError = Class.new(StandardError)
   FromError = Class.new(StandardError)
   ToError = Class.new(StandardError)
   ValidateError = Class.new(StandardError)
   UnknownValidationError = Class.new(StandardError)
   UnInitializedVariable = Class.new(StandardError)
+  ValueIsNotAcceptableToPersist = Class.new(StandardError)
   
   attr_accessor :class_type, :attr_name, :optional_params
   
@@ -54,14 +57,30 @@ class PersistentAttribute
     validate_validate(attr_value)
   end
 
+  def is_a_primitive_value(value)
+    is_primitive_value = false
+    PRIMITIVE_VALUES.each do |value_type|
+      if value.is_a?(value_type)
+        is_primitive_value = true
+      end
+    end
+    is_primitive_value
+  end
+
+  def validate_primitive_value(value)
+    unless value_is_persistent
+      unless is_a_primitive_value(value)
+        raise ValueIsNotAcceptableToPersist
+      end
+    end
+  end
+
   def validate_types(one_instance)
     value = one_instance.send(attr_name)
-    if attr_name.to_s != "id" && !value.nil?
-      value_type =  value.class.to_s
-      if  value_type != class_type.to_s
-        unless value_type == "TrueClass"|| value_type == "FalseClass"
+    if value
+      validate_primitive_value(value)
+      unless value.is_a?(class_type)
           raise TypeError
-        end
       end
     end
     self.validate_content(one_instance)
@@ -81,7 +100,7 @@ class PersistentAttribute
         value = value.id
       end
     end
-    if value.is_a?(Array)
+    if value.is_a?(Array) && value_is_persistent
       value = 'intermediate_table'
     end
     hash[attr_name] = value
