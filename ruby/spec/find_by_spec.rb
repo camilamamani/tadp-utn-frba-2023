@@ -1,27 +1,24 @@
 describe 'Persistence Tests' do
   context 'forget' do
-    let(:sabrina){ Student.new }
-    let(:pablo){ Student.new }
+    let(:jeep){ Car.new }
+    let(:toyota){ Car.new }
 
     before do
-      class Student
+      class Car
         include Persistence
         has_one String, named: :name
-        has_one Integer, named: :age
-        has_one Boolean, named: :is_regular
-
+        has_one Integer, named: :km
+        has_one Boolean, named: :is_4x4
       end
+      jeep.name = 'Jeep 23'
+      jeep.km = 100
+      jeep.is_4x4 = true
+      jeep.save!
 
-      sabrina.name = 'Sabrina'
-      sabrina.age = 19
-      sabrina.is_regular = true
-      sabrina.save!
-
-      pablo.name = 'Pablo'
-      pablo.age = 30
-      pablo.is_regular = true
-      pablo.save!
-
+      toyota.name = 'Toyota Cross'
+      toyota.km = 300
+      toyota.is_4x4 = true
+      toyota.save!
     end
 
     after do
@@ -29,20 +26,20 @@ describe 'Persistence Tests' do
     end
 
     it 'test find by name Sabrina ' do
-      students = Student.find_by_name('Sabrina')
-      expect(students.size).to eq(1)
-      expect(students[0].name).to eq('Sabrina')
+      cars = Car.find_by_name('Jeep 23')
+      expect(cars.size).to eq(1)
+      expect(cars[0].name).to eq('Jeep 23')
     end
 
     it 'test find by age 30 ' do
-      students = Student.find_by_age(30)
-      expect(students.size).to eq(1)
-      expect(students[0].name).to eq('Pablo')
+      cars = Car.find_by_km(300)
+      expect(cars.size).to eq(1)
+      expect(cars[0].name).to eq('Toyota Cross')
     end
 
     it 'test find by is_regular true ' do
-      students = Student.find_by_is_regular(true)
-      expect(students.size).to eq(2)
+      cars = Car.find_by_is_4x4(true)
+      expect(cars.size).to eq(2)
     end
 
   end

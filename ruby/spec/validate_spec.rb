@@ -1,6 +1,6 @@
-describe 'Persistence Tests' do
+describe 'Validate Tests' do
   context 'validate' do
-    let(:alejandro){ Student.new }
+    let(:alejandro){ UTNStudent.new }
     before do
       class Course
         include Persistence
@@ -10,7 +10,7 @@ describe 'Persistence Tests' do
         include Persistence
         has_one Integer, named: :value
       end
-      class Student
+      class UTNStudent
         include Persistence
         has_one String, named: :full_name, no_blank: true
         has_one Integer, named: :age ,from: 5, to: 18

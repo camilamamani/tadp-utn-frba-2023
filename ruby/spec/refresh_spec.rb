@@ -1,21 +1,20 @@
-describe 'Persistence Tests' do
+describe 'Refresh Tests' do
   context '3. refresh' do
-    let(:diana){ Student.new }
+    let(:diana){ Singer.new }
 
     before do
-      class Student
+      class Singer
         include Persistence
         has_one String, named: :full_name
         has_one Integer, named: :age
       end
     end
-
     after do
       TADB::DB.clear_all
     end
 
     it 'refresh da error cuando id es nul' do
-      expect{Student.new.refresh!}.to raise_error(Persistence::MissingIdError)
+      expect{Singer.new.refresh!}.to raise_error(Persistence::MissingIdError)
     end
 
     it 'refresh' do
@@ -30,6 +29,5 @@ describe 'Persistence Tests' do
       expect(diana.full_name).to eq("Diana")
       expect(diana.age).to eq(25)
     end
-
   end
 end

@@ -1,4 +1,4 @@
-describe 'Persistence Tests' do
+describe 'Has One Tests' do
   context 'has_one con atributos primitivos' do
     let(:one_raccoon){ Raccoon.new }
     before do
@@ -8,10 +8,8 @@ describe 'Persistence Tests' do
         has_one Boolean, named: :is_avenger
         has_one String, named: :age
         has_one Numeric, named: :age
-
       end
     end
-
     it 'Raccoon define atributo name con has_one' do
       expect(one_raccoon).to have_attributes(:name => nil)
     end
@@ -32,6 +30,9 @@ describe 'Persistence Tests' do
 
   context 'has_one con objetos' do
     let(:felipe){ Student.new }
+    after do
+      TADB::DB.clear_all
+    end
     before do
       class Grade
         include Persistence
@@ -47,9 +48,7 @@ describe 'Persistence Tests' do
       felipe.grade.value = 8
       felipe.save!
     end
-    after do
-      TADB::DB.clear_all
-    end
+
     it 'Se guarda estudiante y su nota' do
       grade = felipe.grade
       grade.value = 5

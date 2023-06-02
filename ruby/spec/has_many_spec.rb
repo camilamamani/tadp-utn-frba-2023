@@ -1,4 +1,4 @@
-describe 'Persistence Tests' do
+describe 'Has Many Tests' do
   context 'has_many con objetos' do
     let(:pablo){ Student.new }
     before do

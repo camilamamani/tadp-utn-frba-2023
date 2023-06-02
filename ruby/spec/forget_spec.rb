@@ -1,22 +1,19 @@
-describe 'Persistence Tests' do
+describe 'Forget Tests' do
   context 'forget' do
-    let(:alejandro){ Student.new }
-
+    let(:alejandro){ Person.new }
+    after do
+      TADB::DB.clear_all
+    end
     before do
-      class Student
+      class Person
         include Persistence
         has_one String, named: :full_name
         has_one Integer, named: :age
         has_one Boolean, named: :is_regular
       end
     end
-
-    after do
-      TADB::DB.clear_all
-    end
     it 'raises error if no id is found' do
-      expect{Student.new.forget!}.to raise_error(Persistence::MissingIdError)
-
+      expect{Person.new.forget!}.to raise_error(Persistence::MissingIdError)
     end
 
     it 'deletes entry' do

@@ -1,29 +1,28 @@
-describe 'AllInstances' do
-
+describe 'All Instances Tests' do
   context 'all_instances' do
-    let(:alejandro){ Student.new }
-    let(:other_student){ Student.new }
+    let(:alejandro){ Cat.new }
+    let(:fernando){ Cat.new }
 
     before do
-      class Student
+      class Cat
         include Persistence
         has_one String, named: :name
         has_one Integer, named: :age
-        has_one Boolean, named: :is_regular
+        has_one Boolean, named: :is_kitten
         def ==(other)
-          self.class == other.class && name == other.name && age == other.age && is_regular == other.is_regular
+          self.class == other.class && name == other.name && age == other.age && is_kitten == other.is_kitten
         end
       end
 
       alejandro.name = "Alejandro"
-      alejandro.age  = 25
-      alejandro.is_regular  = true
+      alejandro.age  = 5
+      alejandro.is_kitten  = true
       alejandro.save!
 
-      other_student.name = "Fernando"
-      other_student.age  = 30
-      other_student.is_regular  = true
-      other_student.save!
+      fernando.name = "Fernando"
+      fernando.age  = 3
+      fernando.is_kitten  = true
+      fernando.save!
 
     end
 
@@ -32,22 +31,20 @@ describe 'AllInstances' do
     end
 
     it 'returns all instances of a students that are saved' do
-      expect(Student.all_instances.size).to eq(2)
+      expect(Cat.all_instances.size).to eq(2)
     end
 
     it 'returns all instances of a students that are saved except the ones forgot' do
-      other_student.forget!
-      expect(Student.all_instances.size).to eq(1)
+      fernando.forget!
+      expect(Cat.all_instances.size).to eq(1)
     end
 
     it 'all instances returned are actual classes and can be updated' do
-      student_a = Student.all_instances[0]
-      student_a.name = "Student A"
-      puts(student_a.is_regular.class)
-      student_a.save!
-
-      expect(Student.all_instances.include?(student_a)).to eq(true)
-      expect(Student.all_instances.size).to eq(2)
+      cat_a = Cat.all_instances[0]
+      cat_a.name = "Student A"
+      cat_a.save!
+      expect(Cat.all_instances.include?(cat_a)).to eq(true)
+      expect(Cat.all_instances.size).to eq(2)
     end
 
   end
