@@ -12,7 +12,7 @@ describe 'Save Tests' do
         has_one Boolean, named: :is_regular
       end
     end
-    it 'Un estudiante responde a id' do
+    it 'Un empleado responde a id' do
       alejandro.full_name = "Alejandro"
       alejandro.age = 25
       alejandro.is_regular = true

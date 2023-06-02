@@ -25,22 +25,21 @@ describe 'Persistence Tests' do
       TADB::DB.clear_all
     end
 
-    it 'test find by name Sabrina ' do
+    it 'test find by name Jeep 23 ' do
       cars = Car.find_by_name('Jeep 23')
       expect(cars.size).to eq(1)
       expect(cars[0].name).to eq('Jeep 23')
     end
 
-    it 'test find by age 30 ' do
+    it 'test find by km 300 ' do
       cars = Car.find_by_km(300)
       expect(cars.size).to eq(1)
       expect(cars[0].name).to eq('Toyota Cross')
     end
 
-    it 'test find by is_regular true ' do
+    it 'test find by is_4x4 true ' do
       cars = Car.find_by_is_4x4(true)
       expect(cars.size).to eq(2)
     end
-
   end
 end

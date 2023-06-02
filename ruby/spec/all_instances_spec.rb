@@ -30,18 +30,18 @@ describe 'All Instances Tests' do
       TADB::DB.clear_all
     end
 
-    it 'returns all instances of a students that are saved' do
+    it 'returns all instances of a cats that are saved' do
       expect(Cat.all_instances.size).to eq(2)
     end
 
-    it 'returns all instances of a students that are saved except the ones forgot' do
+    it 'returns all instances of a cats that are saved except the ones forgot' do
       fernando.forget!
       expect(Cat.all_instances.size).to eq(1)
     end
 
     it 'all instances returned are actual classes and can be updated' do
       cat_a = Cat.all_instances[0]
-      cat_a.name = "Student A"
+      cat_a.name = "Cat A"
       cat_a.save!
       expect(Cat.all_instances.include?(cat_a)).to eq(true)
       expect(Cat.all_instances.size).to eq(2)

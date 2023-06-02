@@ -83,7 +83,7 @@ describe 'Herencia Tests' do
       juan.type = "Ayudante"
       juan.save!
     end
-    it 'Modulo Person devuelve instancias de productores y asistentes' do
+    it 'Modulo Staff devuelve instancias de productores y asistentes' do
       expect(Staff.all_instances.size).to eq(2)
     end
   end
