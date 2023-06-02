@@ -43,21 +43,20 @@ module Persistence
       @attrs_to_persist = self.attrs_to_persist.merge(external_attrs)
     end
 
-    def has_one(type, named:, **args)
+    def has_attribute(named, attr)
       get_attrs_included
-      attr = PersistentAttribute.new(type, named, args);
       self.attrs_to_persist[named] = attr
       attr_accessor named
       init_default_values(attrs_to_persist)
+    end
+    def has_one(type, named:, **args)
+      attr = PersistentAttribute.new(type, named, args);
+      has_attribute(named, attr)
       attr
     end
-    
     def has_many(type, named:, **args)
-      get_attrs_included
       attr = PersistentAttributeMany.new(type, named, args);
-      self.attrs_to_persist[named] = attr
-      attr_accessor named
-      init_default_values(attrs_to_persist)
+      has_attribute(named, attr)
     end
 
     def init_default_values(attrs)
@@ -185,7 +184,6 @@ module Persistence
     end
 
   end
-    
   def save!
     @id = self.class.save!(self)
   end
