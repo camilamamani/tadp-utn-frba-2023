@@ -109,10 +109,7 @@ module Persistence
     def get_object_with_values(entry, object)
       attrs_to_persist.each do |name, attr|
         var_name = "@"+name.to_s
-        value = entry[name]
-        if attr.value_is_persistent
-          value = attr.get_object_from_persistent_value(value, get_table_name)
-        end
+        value = attr.get_primitive_value_or_object_value(entry[name], get_table_name)
         object.instance_variable_set(var_name, value)
       end
       object

@@ -119,19 +119,21 @@ class PersistentAttribute
     valor
   end
 
-  def get_object_from_persistent_value(value, class_name)
-    if value == 'intermediate_table'
-      second_table_name = class_type.to_s.downcase
-      table_name = "#{class_name}_#{second_table_name}"
+  def get_primitive_value_or_object_value(value, class_name)
+    if value_is_persistent
+      if value == 'intermediate_table'
+        second_table_name = class_type.to_s.downcase
+        table_name = "#{class_name}_#{second_table_name}"
 
-      object_entries = find_by_intermediate_table_object_entries(table_name)
-      value = object_entries.map do |object_entry|
-        class_type.get_object_from_entry(object_entry)
+        object_entries = find_by_intermediate_table_object_entries(table_name)
+        value = object_entries.map do |object_entry|
+          class_type.get_object_from_entry(object_entry)
+        end
+      else
+        id = value
+        object_entry = class_type.find_by_table_name_and_id(class_type.to_s.downcase, id)
+        value = class_type.get_object_from_entry(object_entry)
       end
-    else
-      id = value
-      object_entry = class_type.find_by_table_name_and_id(class_type.to_s.downcase, id)
-      value = class_type.get_object_from_entry(object_entry)
     end
     value
   end
