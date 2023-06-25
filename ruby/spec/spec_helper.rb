@@ -1,3 +1,4 @@
-require 'rspec'
-
-require_relative '../lib/prueba'
+require "rspec"
+require "tadb"
+require_relative '../lib/Persistence'
+require_relative '../lib/Boolean'
