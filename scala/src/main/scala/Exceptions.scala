@@ -1,0 +1,1 @@
+class EmptyInputStringException extends Exception
