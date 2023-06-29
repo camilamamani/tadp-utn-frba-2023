@@ -49,6 +49,18 @@ class ParserTests extends AnyFlatSpec{
     digit("weezing").failure.exception shouldBe a[NotDigitException]
   }
 
+  "alphaNum Parser" should " return a succesful result when head is a digit" in {
+    alphaNum("1a1a") shouldBe Success(Result('1', "a1a"))
+  }
+
+  "alphaNum Parser" should " return a succesful result when head is a letter" in {
+    alphaNum("a1a1") shouldBe Success(Result('a', "1a1"))
+  }
+
+  "alphaNum Parser" should " return a failure result when is not a digit nor letter" in {
+    alphaNum("----").failure.exception shouldBe a[NotAlphaNumException]
+  }
+
 }
 
 

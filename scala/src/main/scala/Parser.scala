@@ -5,15 +5,7 @@ abstract class Parser[T]{
 }
 case class Result[T](parsedInput: T, unparsedInput: String)
 
-def alphaNum(text: String): Parser[Char] = {
-  letter(text) match {
-    case Success(char) => Success(char)
-    case Failure(_) => digit(text) match {
-      case Success(char) => Success(char)
-      case Failure(_) => Failure(new Exception("No se encontró un carácter alfanumérico válido"))
-    }
-  }
-}
+
 //uso parser aca??? nos conviene normalizar(quitarle espacios al text y al expected)
 def string(expected: String, text: String): Try[String] = {
   text.startsWith(expected) match {

@@ -36,3 +36,12 @@ case object digit extends Parser[Char]{
     case head :: tail if head.isDigit => Success(Result(head, tail.mkString("")))
   }
 }
+case object alphaNum extends Parser[Char] {
+  def apply(input: String): Try[Result[Char]] = letter(input) match {
+    case Success(Result(_, _)) => Success(Result(input.head, input.tail))
+    case Failure(_) => digit(input) match {
+      case Success(Result(_, _)) => Success(Result(input.head, input.tail))
+      case Failure(_) => Failure(new NotAlphaNumException)
+    }
+  }
+}
