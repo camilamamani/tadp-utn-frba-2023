@@ -33,6 +33,14 @@ class ParserTests extends AnyFlatSpec{
     void("").failure.exception shouldBe a[EmptyInputStringException]
   }
 
+  "letter Parser" should " return a succesful result" in {
+    letter("vulpix") shouldBe Success(Result('v', "ulpix"))
+  }
+
+  "letter Parser" should " return a failure result" in {
+    letter("1010").failure.exception shouldBe a[NotLetterException]
+  }
+
 }
 
 

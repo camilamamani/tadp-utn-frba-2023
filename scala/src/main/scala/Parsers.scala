@@ -20,3 +20,11 @@ case object void extends Parser[Unit] {
     case _ :: tail => Success(Result((), tail.mkString("")))
   }
 }
+
+case object letter extends Parser[Char]{
+  def apply(input: String): Try[Result[Char]] = input.toList match {
+    case List() => Failure(new EmptyInputStringException)
+    case head :: _ if !head.isLetter => Failure(new NotLetterException)
+    case head :: tail if head.isLetter => Success(Result(head, tail.mkString("")))
+  }
+}
