@@ -61,6 +61,16 @@ class ParserTests extends AnyFlatSpec{
     alphaNum("----").failure.exception shouldBe a[NotAlphaNumException]
   }
 
+  "string Parser" should " return a succesful result" in {
+    val stringParser = new string("Ash")
+    stringParser("Ash Ketchum") shouldBe Success(Result("Ash", " Ketchum"))
+  }
+
+  "string Parser" should " return a failure result" in {
+    val stringParser = new string("Misty")
+    stringParser("Profesor Oak").failure.exception shouldBe a[PrefixMismatchException]
+  }
+
 }
 
 

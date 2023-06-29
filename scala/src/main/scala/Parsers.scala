@@ -5,22 +5,19 @@ case object AnyChar extends Parser[Char] {
     case head :: tail => Success(Result(head, tail.mkString("")))
   }
 }
-
-case class char(expectedChar: Char) extends Parser[Char]{
+case class char(charExpected: Char) extends Parser[Char]{
   def apply(input: String): Try[Result[Char]] = input.toList match {
     case List() => Failure(new EmptyInputStringException)
-    case head :: _ if head != expectedChar => Failure(new CharMismatchException)
-    case head :: tail if head == expectedChar => Success(Result(head, tail.mkString("")))
+    case head :: _ if head != charExpected => Failure(new CharMismatchException)
+    case head :: tail if head == charExpected => Success(Result(head, tail.mkString("")))
   }
 }
-
 case object void extends Parser[Unit] {
   def apply(input: String): Try[Result[Unit]] = input.toList match {
     case List() => Failure(new EmptyInputStringException)
     case _ :: tail => Success(Result((), tail.mkString("")))
   }
 }
-
 case object letter extends Parser[Char]{
   def apply(input: String): Try[Result[Char]] = input.toList match {
     case List() => Failure(new EmptyInputStringException)
@@ -28,7 +25,6 @@ case object letter extends Parser[Char]{
     case head :: tail if head.isLetter => Success(Result(head, tail.mkString("")))
   }
 }
-
 case object digit extends Parser[Char]{
   def apply(input: String): Try[Result[Char]] = input.toList match {
     case List() => Failure(new EmptyInputStringException)
@@ -43,5 +39,11 @@ case object alphaNum extends Parser[Char] {
       case Success(Result(_, _)) => Success(Result(input.head, input.tail))
       case Failure(_) => Failure(new NotAlphaNumException)
     }
+  }
+}
+case class string(prefixExpected: String) extends Parser[String]{
+  def apply(input: String): Try[Result[String]] = input.startsWith(prefixExpected) match {
+    case true => Success(Result(prefixExpected, input.stripPrefix(prefixExpected)))
+    case false => Failure(new PrefixMismatchException)
   }
 }
