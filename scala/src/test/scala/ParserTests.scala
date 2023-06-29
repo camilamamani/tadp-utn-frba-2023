@@ -25,6 +25,14 @@ class ParserTests extends AnyFlatSpec{
     charParser("pikachu").failure.exception shouldBe a[CharMismatchException]
   }
 
+  "void Parser" should " return a succesful result" in {
+    void("psyduck") shouldBe Success(Result((), "syduck"))
+  }
+
+  "void Parser" should " return a failure result" in {
+    void("").failure.exception shouldBe a[EmptyInputStringException]
+  }
+
 }
 
 

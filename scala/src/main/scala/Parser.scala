@@ -5,28 +5,6 @@ abstract class Parser[T]{
 }
 case class Result[T](parsedInput: T, unparsedInput: String)
 
-case object AnyChar extends Parser[Char] {
-  def apply(input: String) = input.toList match {
-    case List() => Failure(new EmptyInputStringException)
-    case head :: tail => Success(Result(head, tail.mkString("")))
-  }
-}
-
-def char(expectedChar: Char)(text: String): Parser[Char] = {
-  text.headOption match {
-    case Some(actualChar) if actualChar == expectedChar =>
-      Success(actualChar)
-    case _ =>
-      Failure(new Exception(s"Se esperaba el carácter '$expectedChar'"))
-  }
-}
-def void(text: String): Try[Unit] = {
-  text.headOption match {
-    case Some(_) => Success(())
-    case None => Failure(new Exception("El texto está vacío"))
-  }
-}
-
 def letter(text: String): Parser[Char] = {
   text.headOption match {
     case Some(char) if char.isLetter => Success(char)
