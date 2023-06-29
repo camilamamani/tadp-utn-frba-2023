@@ -28,3 +28,11 @@ case object letter extends Parser[Char]{
     case head :: tail if head.isLetter => Success(Result(head, tail.mkString("")))
   }
 }
+
+case object digit extends Parser[Char]{
+  def apply(input: String): Try[Result[Char]] = input.toList match {
+    case List() => Failure(new EmptyInputStringException)
+    case head :: _ if !head.isDigit => Failure(new NotDigitException)
+    case head :: tail if head.isDigit => Success(Result(head, tail.mkString("")))
+  }
+}

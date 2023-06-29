@@ -41,6 +41,14 @@ class ParserTests extends AnyFlatSpec{
     letter("1010").failure.exception shouldBe a[NotLetterException]
   }
 
+  "digit Parser" should " return a succesful result" in {
+    digit("1010") shouldBe Success(Result('1', "010"))
+  }
+
+  "digit Parser" should " return a failure result" in {
+    digit("weezing").failure.exception shouldBe a[NotDigitException]
+  }
+
 }
 
 

@@ -5,13 +5,6 @@ abstract class Parser[T]{
 }
 case class Result[T](parsedInput: T, unparsedInput: String)
 
-def digit(text: String): Parser[Char] = {
-  text.headOption match {
-    case Some(char) if char.isDigit => Success(char)
-    case _ => Failure(new Exception("No se encontró un dígito válido"))
-  }
-}
-
 def alphaNum(text: String): Parser[Char] = {
   letter(text) match {
     case Success(char) => Success(char)
