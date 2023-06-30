@@ -11,6 +11,8 @@ case class char(charExpected: Char) extends Parser[Char]{
     case head :: _ if head != charExpected => Failure(new CharMismatchException)
     case head :: tail if head == charExpected => Success(Result(head, tail.mkString("")))
   }
+
+
 }
 case object void extends Parser[Unit] {
   def apply(input: String): Try[Result[Unit]] = input.toList match {
