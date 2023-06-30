@@ -5,10 +5,16 @@ import scala.util.Success
 
 class CombinatorsTests extends AnyFlatSpec{
 
-  "<|> Combinator" should " return a succesful result" in {
-    val charA = new char('a')
-    val charB = new char('b')
-    (charA <|> charB)("argentina") shouldBe Success(Result('a', "rgentina"))
+  "<|> Or Combinator" should " return a successful result with char parsers" in {
+    (char('a') <|> char('b'))("argentina") shouldBe Success(Result('a', "rgentina"))
+  }
+
+  "<> And Combinator" should " return a successful result with char parsers" in {
+    (char('a') <> char('r'))("argentina") shouldBe Success(Result(('a', 'r'), "gentina"))
+  }
+
+  "<> And Combinator" should " return a successful result with string parsers" in {
+    (string("hello") <> string(" world"))("hello world!") shouldBe Success(Result(("hello", " world"), "!"))
   }
 
 }
