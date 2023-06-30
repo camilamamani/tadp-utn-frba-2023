@@ -49,6 +49,20 @@ class CombinatorsTests extends AnyFlatSpec{
     val kleeneCharX = char('x').*
     kleeneCharX("not possible") shouldBe Success(Result(List(), "not possible"))
   }
+  "+ Kleene operation added to char a parser" should " return the expected result at least maching once" in {
+    val kleenePositiveCharT = char('a').+
+    kleenePositiveCharT("all ok") shouldBe Success(Result(List('a'), "ll ok"))
+  }
+  "+ Kleene operation added to char y parser" should " return the expected result when matches more than once" in {
+    val kleenePositiveCharY = char('y').+
+    kleenePositiveCharY("yyellow") shouldBe Success(Result(List('y','y'), "ellow"))
+  }
+  "+ Kleene operation added to char y parser" should " return empty list when not matches at least once" in {
+    val kleenePositiveCharY = char('y').+
+    kleenePositiveCharY("violet") shouldBe Success(Result(List(), "violet"))
+  }
+
+
 }
 
 

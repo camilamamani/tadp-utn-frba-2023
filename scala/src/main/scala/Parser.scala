@@ -56,13 +56,11 @@ abstract class Parser[T]{
     Result(result._1, result._2)
   }
 
-  /*
-  la clausura de Kleene se aplica a un parser, convirtiéndolo en otro que se puede aplicar todas
-  las veces que sea posible o 0 veces. El resultado debería ser una lista que contiene todos los
-  valores que hayan sido parseados (podría no haber ninguno).
-  * */
-
-
+  def +(): Parser[List[T]] = {
+    (input: String) => {
+      this.*().apply(input)
+    }
+  }
 
 }
 case class Result[T](parsedInput: T, unparsedInput: String)
