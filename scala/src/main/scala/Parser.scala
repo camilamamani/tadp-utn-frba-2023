@@ -3,11 +3,9 @@ import scala.util.{Failure, Success, Try}
 abstract class Parser[T]{
   def apply(input: String): Try[Result[T]]
   def <|> (oneParser: Parser[T]): Parser[T] = {
-    (input: String) => {
-      this.apply(input) match {
-        case Success(Result(head, tail)) => Success(Result(head, tail))
-        case Failure(_) => oneParser.apply(input)
-      }
+    (input: String) => this.apply(input) match {
+      case Success(Result(head, tail)) => Success(Result(head, tail))
+      case Failure(_) => oneParser.apply(input)
     }
   }
   def <>[S](oneParser: Parser[S]): Parser[(T, S)] = {
@@ -19,5 +17,24 @@ abstract class Parser[T]{
       case Failure(_) => Failure(new ConcatCombinatorException)
     }
   }
+
+  def ~>(oneParser: Parser[T]): Parser[T] = {
+    ???
+  }
+
+  def <~(oneParser: Parser[T]): Parser[T] = {
+    ???
+  }
+
+  def satisfies(function: T => Boolean): Parser[T] = {
+    (input:String) => this.apply(input) match {
+        case Success(Result(parsedInput, tail)) if function(parsedInput) => Success(Result(parsedInput, tail))
+        case Success(Result(_, _)) => Failure(new SatisfiesException)
+        case Failure(_) => Failure(new SatisfiesException)
+    }
+  }
+
+
+
 }
 case class Result[T](parsedInput: T, unparsedInput: String)

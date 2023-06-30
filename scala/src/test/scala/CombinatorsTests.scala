@@ -17,6 +17,20 @@ class CombinatorsTests extends AnyFlatSpec{
     (string("hello") <> string(" world"))("hello world!") shouldBe Success(Result(("hello", " world"), "!"))
   }
 
+  "satisfies operation added to anychar" should " return a successful result" in {
+    val anyCharParserWithCharA = AnyChar.satisfies('a'.==)
+    anyCharParserWithCharA("andes") shouldBe Success(Result('a', "ndes"))
+  }
+
+  "satisfies operation added to letter" should " return a successful result" in {
+    val letterParserNotConsumesCharZ = letter.satisfies('z'.!=)
+    letterParserNotConsumesCharZ("andes") shouldBe Success(Result('a', "ndes"))
+  }
+
+  "satisfies operation added to digit" should " return a successful result" in {
+    val digitParserConsumesNum1 = digit.satisfies('1'.==)
+    digitParserConsumesNum1("1B") shouldBe Success(Result('1', "B"))
+  }
 }
 
 
