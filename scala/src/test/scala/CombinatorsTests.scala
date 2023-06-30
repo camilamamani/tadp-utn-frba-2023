@@ -36,6 +36,19 @@ class CombinatorsTests extends AnyFlatSpec{
     val precedencia = talVezIn <> string("fija")
     precedencia("fijamente") shouldBe Success(Result((None, "fija"), "mente"))
   }
+
+  "* Kleene operation added to char a parser" should " return the expected result" in {
+    val kleeneCharA = char('a').*
+    kleeneCharA("aahh!") shouldBe Success(Result(List('a', 'a'), "hh!"))
+  }
+  "* Kleene operation added to char z parser" should " return the expected result" in {
+    val kleeneCharZ = char('z').*
+    kleeneCharZ("zzz") shouldBe Success(Result(List('z', 'z', 'z'), ""))
+  }
+  "* Kleene operation added to char x parser" should " return empty list" in {
+    val kleeneCharX = char('x').*
+    kleeneCharX("not possible") shouldBe Success(Result(List(), "not possible"))
+  }
 }
 
 

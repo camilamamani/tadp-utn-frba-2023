@@ -1,3 +1,5 @@
+import scala.Array.copy
+import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success, Try}
 
 abstract class Parser[T]{
@@ -40,6 +42,25 @@ abstract class Parser[T]{
         case Failure(_) => Success(Result(None, input))
       }
   }
+  def *(): Parser[List[T]] = {
+    (input: String) => {
+      Try{parseNtimes(input)}
+    }
+  }
+  private def parseNtimes(input:String): Result[List[T]] = {
+    val result = this.apply(input) match {
+      case Success(Result(parsed, tail) ) => val Result(newParsed, newTail) = parseNtimes(tail)
+        (parsed :: newParsed, newTail)
+      case Failure (_) => (List(), input)
+    }
+    Result(result._1, result._2)
+  }
+
+  /*
+  la clausura de Kleene se aplica a un parser, convirtiéndolo en otro que se puede aplicar todas
+  las veces que sea posible o 0 veces. El resultado debería ser una lista que contiene todos los
+  valores que hayan sido parseados (podría no haber ninguno).
+  * */
 
 
 
