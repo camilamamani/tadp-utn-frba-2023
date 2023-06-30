@@ -34,6 +34,13 @@ abstract class Parser[T]{
     }
   }
 
+  def opt(): Parser[Option[T]] = {
+    (input: String) => this.apply(input) match {
+        case Success(Result(parsed, tail)) => Success(Result(Some(parsed), tail))
+        case Failure(_) => Success(Result(None, input))
+      }
+  }
+
 
 
 }

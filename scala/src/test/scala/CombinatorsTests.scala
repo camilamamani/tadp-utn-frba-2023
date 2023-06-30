@@ -31,6 +31,11 @@ class CombinatorsTests extends AnyFlatSpec{
     val digitParserConsumesNum1 = digit.satisfies('1'.==)
     digitParserConsumesNum1("1B") shouldBe Success(Result('1', "B"))
   }
+  "optional operation added to string parser" should " return the expected result" in {
+    val talVezIn = string("in").opt
+    val precedencia = talVezIn <> string("fija")
+    precedencia("fijamente") shouldBe Success(Result((None, "fija"), "mente"))
+  }
 }
 
 
