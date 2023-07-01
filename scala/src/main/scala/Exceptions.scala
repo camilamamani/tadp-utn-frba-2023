@@ -6,5 +6,6 @@ class NotAlphaNumException extends Exception("The consumed char is not alphanume
 class PrefixMismatchException extends Exception("The expected prefix mismatches the head of input string")
 class ConcatCombinatorException extends Exception("Concat combinator fails with parsers provided")
 class SatisfiesException extends Exception("Satisfies operation fails with parser and condition provided")
+class MapException extends Exception("Fails map parser with the parser provided")
 
 

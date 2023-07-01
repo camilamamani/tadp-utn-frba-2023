@@ -62,7 +62,27 @@ class CombinatorsTests extends AnyFlatSpec{
     kleenePositiveCharY("violet") shouldBe Success(Result(List(), "violet"))
   }
 
-
+  "Left most parser combinator" should " return the expected result" in {
+    val stringParserWithChar = (string("home") <~ char('-'))
+    stringParserWithChar("home-coming") shouldBe Success(Result("home", "coming"))
+  }
+  "Right most parser combinator" should " return the expected result" in {
+    val stringParserWithChar = (string("know-") ~> string("how"))
+    stringParserWithChar("know-how") shouldBe Success(Result("how", ""))
+  }
+  "sepBy with digit parser" should " return the expected result" in {
+    val integer = digit.+.map(list => list.mkString("").toInt)
+    val numeroDeTelefono = integer.sepBy(char('-'))
+    numeroDeTelefono("4356-1234") shouldBe Success(Result(List(4356,1234), ""))
+  }
+  "const Parser with string works and true value" should " return the expected result" in {
+    val trueParser = string("works").const(true)
+    trueParser("works ok!") shouldBe Success(Result(true, " ok!"))
+  }
+  "const Parser when fails" should " return the expected result" in {
+    val trueParser = string("works").const(true)
+    trueParser("not the same!").failure.exception shouldBe a[PrefixMismatchException]
+  }
 }
 
 
