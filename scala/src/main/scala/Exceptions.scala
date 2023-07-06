@@ -8,4 +8,6 @@ class ConcatCombinatorException extends Exception("Concat combinator fails with 
 class SatisfiesException extends Exception("Satisfies operation fails with parser and condition provided")
 class MapException extends Exception("Fails map parser with the parser provided")
 
+class NotSilencioException extends Exception("Silencio Parser fails with the input provided")
+
 
