@@ -30,9 +30,7 @@ abstract class Parser[T] {
   }
 
   def <~[S](oneParser: Parser[S]): Parser[T] = {
-    (input: String) => {
-      (this <> oneParser).map(elem => elem._1)(input)
-    }
+      (this <> oneParser).map(elem => elem._1)
   }
   def map[S](function: T => S): Parser[S] = {
     (input: String) => this.apply(input) match {
@@ -74,9 +72,8 @@ abstract class Parser[T] {
   }
 
   def +(): Parser[List[T]] = {
-    (input: String) => {
-      this.*().apply(input)
-    }
+
+      this.*()
   }
   def sepBy[S](separatorParser: Parser[S]): Parser[List[T]] = {
     (input: String) => {
