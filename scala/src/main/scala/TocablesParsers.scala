@@ -1,12 +1,10 @@
 import Musica._
 import scala.util.{Failure, Success, Try}
-
 case object silencio extends Parser[Silencio]{
-  def apply(input: String): Try[Result[Silencio]] = input.toList match {
-    case List() => Failure(new EmptyInputStringException)
-    case head :: tail if head == '_' => Success(Result(Silencio(Blanca), tail.mkString("")))
-    case head :: tail if head == '-' => Success(Result(Silencio(Negra), tail.mkString("")))
-    case head :: tail if head == '~' => Success(Result(Silencio(Corchea), tail.mkString("")))
-    case _ :: _  => Failure(new NotSilencioException)
+  def apply(input: String): Try[Result[Silencio]] = {
+    val silencioBlanca = char('_').const(Silencio(Blanca))
+    val silencioNegra = char('-').const(Silencio(Negra))
+    val silencioCorchea = char('~').const(Silencio(Corchea))
+    (silencioBlanca <|> silencioNegra <|> silencioCorchea)(input)
   }
 }

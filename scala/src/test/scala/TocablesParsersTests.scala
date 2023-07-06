@@ -16,7 +16,7 @@ class TocablesParsersTests extends AnyFlatSpec{
     silencio("~") shouldBe Success(Result(Silencio(Corchea), ""))
   }
   "silencio Parser" should "falla correctamente cuando recibe cualquier input" in {
-    silencio("**").failure.exception shouldBe a[NotSilencioException]
+    silencio("**").failure.exception shouldBe a[CharMismatchException]
   }
   "silencio Parser" should "falla correctamente cuando recibe cadena vacia" in {
     silencio("").failure.exception shouldBe a[EmptyInputStringException]
