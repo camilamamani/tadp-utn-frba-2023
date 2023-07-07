@@ -72,7 +72,6 @@ abstract class Parser[T] {
   }
 
   def +(): Parser[List[T]] = {
-
       this.*()
   }
   def sepBy[S](separatorParser: Parser[S]): Parser[List[T]] = {
