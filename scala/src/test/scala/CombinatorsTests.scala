@@ -81,7 +81,7 @@ class CombinatorsTests extends AnyFlatSpec{
   }
   "const Parser when fails" should " return the expected result" in {
     val trueParser = string("works").const(true)
-    trueParser("not the same!").failure.exception shouldBe a[PrefixMismatchException]
+    trueParser("not the same!").failure.exception shouldBe a[MapException]
   }
 }
 

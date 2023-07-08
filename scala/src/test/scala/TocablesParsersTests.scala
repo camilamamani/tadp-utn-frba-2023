@@ -16,10 +16,10 @@ class TocablesParsersTests extends AnyFlatSpec{
     parserSilencio("~") shouldBe Success(Result(Silencio(Corchea), ""))
   }
   "silencio Parser" should "falla correctamente cuando recibe cualquier input" in {
-    parserSilencio("**").failure.exception shouldBe a[CharMismatchException]
+    parserSilencio("**").failure.exception shouldBe a[MapException]
   }
   "silencio Parser" should "falla correctamente cuando recibe cadena vacia" in {
-    parserSilencio("").failure.exception shouldBe a[EmptyInputStringException]
+    parserSilencio("").failure.exception shouldBe a[MapException]
   }
 
   "nota Parser C" should " parsear correctamente" in {

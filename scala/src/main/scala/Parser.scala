@@ -81,12 +81,7 @@ abstract class Parser[+T] {
   }
 
   def const[S >: T](constValue: S): Parser[S] = {
-    (input: String) => {
-      this.apply(input) match {
-        case Success(Result(_, tail)) => Success(Result(constValue, tail))
-        case Failure(exc) => Failure(exc)
-      }
-    }
+    this.map(_ => constValue)
   }
 }
 case class Result[+T](parsedInput: T, unparsedInput: String)
