@@ -5,9 +5,8 @@ abstract class Parser[+T] {
   def apply(input: String): Try[Result[T]]
 
   def <|>[R >: T](oneParser: Parser[R]): Parser[R] = {
-    val thisParser = this
     (input: String) => {
-      thisParser.apply(input) match {
+      this.apply(input) match {
         case Success(Result(head, tail)) => Success(Result(head, tail))
         case Failure(_) => oneParser.apply(input)
       }
@@ -15,9 +14,8 @@ abstract class Parser[+T] {
   }
 
   def <>[R >: T, S](oneParser: Parser[S]): Parser[(R, S)] = {
-    val thisParser = this
     (input: String) => {
-      thisParser.apply(input) match {
+      this.apply(input) match {
         case Success(Result(consumed1, tail)) => oneParser.apply(tail) match {
           case Success(Result(consumed2, tail)) => Success(Result((consumed1, consumed2), tail))
           case Failure(_) => Failure(new ConcatCombinatorException)
@@ -27,9 +25,7 @@ abstract class Parser[+T] {
     }
   }
   def ~>[S](oneParser: Parser[S]): Parser[S] = {
-    (input: String) => {
-      (this <> oneParser).map(elem => elem._2)(input)
-    }
+      (this <> oneParser).map(elem => elem._2)
   }
 
   def <~[S](oneParser: Parser[S]): Parser[T] = {
@@ -76,16 +72,13 @@ abstract class Parser[+T] {
       this.*()
   }
   def sepBy[S](separatorParser: Parser[S]): Parser[List[T]] = {
-    (input: String) => {
       val contentParser = this
-      (contentParser <> (separatorParser ~> contentParser).*()).map(tuple => tuple._1 :: tuple._2)(input)
-    }
+      (contentParser <> (separatorParser ~> contentParser).*()).map(tuple => tuple._1 :: tuple._2)
   }
 
   def const[S >: T](constValue: S): Parser[S] = {
-    val thisParser = this
     (input: String) => {
-      thisParser.apply(input) match {
+      this.apply(input) match {
         case Success(Result(_, tail)) => Success(Result(constValue, tail))
         case Failure(exc) => Failure(exc)
       }
