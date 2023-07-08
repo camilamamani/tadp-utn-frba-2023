@@ -1,3 +1,4 @@
+import scala.collection.immutable.Nil.:::
 import scala.util.{Failure, Success, Try}
 
 abstract class Parser[+T] {
