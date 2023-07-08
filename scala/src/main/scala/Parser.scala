@@ -1,3 +1,4 @@
+import scala.::
 import scala.collection.immutable.Nil.:::
 import scala.util.{Failure, Success, Try}
 
@@ -69,7 +70,10 @@ abstract class Parser[+T] {
   }
 
   def +(): Parser[List[T]] = {
-      this.*()
+    val funcion: ((T,List[T])) => List[T] = {
+      case (x, lista) => (lista :+ x)
+    }
+    (this <> this.*).map(funcion)
   }
   def sepBy[S](separatorParser: Parser[S]): Parser[List[T]] = {
       val contentParser = this

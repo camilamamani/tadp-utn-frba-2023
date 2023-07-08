@@ -57,9 +57,9 @@ class CombinatorsTests extends AnyFlatSpec{
     val kleenePositiveCharY = char('y').+
     kleenePositiveCharY("yyellow") shouldBe Success(Result(List('y','y'), "ellow"))
   }
-  "+ Kleene operation added to char y parser" should " return empty list when not matches at least once" in {
+  "+ Kleene operation added to char y parser" should " return error when not matches at least once" in {
     val kleenePositiveCharY = char('y').+
-    kleenePositiveCharY("violet") shouldBe Success(Result(List(), "violet"))
+    kleenePositiveCharY("violet").failure.exception shouldBe a[MapException]
   }
 
   "Left most parser combinator" should " return the expected result" in {
@@ -71,7 +71,7 @@ class CombinatorsTests extends AnyFlatSpec{
     stringParserWithChar("know-how") shouldBe Success(Result("how", ""))
   }
   "sepBy with digit parser" should " return the expected result" in {
-    val integer = digit.+.map(list => list.mkString("").toInt)
+    val integer = digit.*.map(list => list.mkString("").toInt)
     val numeroDeTelefono = integer.sepBy(char('-'))
     numeroDeTelefono("4356-1234") shouldBe Success(Result(List(4356,1234), ""))
   }
